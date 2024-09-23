@@ -1,0 +1,43 @@
+{
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    ".git": true,
+    ".husky": true,
+    ".config": true
+  },
+  "search.exclude": {
+    "node_modules/**": true
+  },
+  "files.readonlyInclude": {
+    "dist/**": true,
+    "node_modules/**": true,
+    "*.lock": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "eslint.format.enable": true,
+  "eslint.lintTask.options": "yarn run lint-fix:react",
+  "less.validate": false,
+  "stylelint.validate": ["less"],
+  "stylelint.customSyntax": "postcss-less",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  "npm.packageManager": "yarn"
+}

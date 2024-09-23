@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "EditorConfig.EditorConfig",
+    "usernamehw.errorlens",
+    "Gruntfuggly.todo-tree"
+  ]
+}
