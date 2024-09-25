@@ -30,3 +30,5 @@ pnpmfile.js
 *.log.*
 
 */dist/
+
+.npmrc

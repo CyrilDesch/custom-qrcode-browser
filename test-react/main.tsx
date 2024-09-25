@@ -12,8 +12,8 @@ import {
   QrPixelShape,
   QrShape,
   QrShapes,
-} from "../../../src";
-import QrCode from "../components/QrCode";
+} from "../src";
+import QrCode from "../react/src/components/QrCode";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
@@ -22,7 +22,7 @@ const App = () => {
   const [svg, setSvg] = React.useState<string | null>(null);
 
   useEffect(() => {
-    void fetch("react/src/starbucks.svg")
+    void fetch("test-react/starbucks.svg")
       .then((res) => res.text())
       .then((res) => setSvg(res));
     setSvg(svg);
@@ -61,7 +61,7 @@ const App = () => {
         <div style={{ width: 300 }}>
           <QrCode data={data} options={options} />
         </div>
-        <img width={300} src="react/src/unnamed.png" alt="TikTok" />
+        <img width={300} src="test-react/unnamed.png" alt="TikTok" />
       </div>
     </div>
   );

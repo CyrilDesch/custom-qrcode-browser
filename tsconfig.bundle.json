@@ -7,12 +7,11 @@
 
     // Output settings.
     "newLine": "LF",
-    "sourceMap": true,
+    "sourceMap": false,
 
     // Type declaration settings.
     "declaration": true,
-    "declarationDir": "types/",
-    "declarationMap": true
+    "declarationMap": false
   },
   "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx"]
 }

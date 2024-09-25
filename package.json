@@ -2,37 +2,27 @@
   "name": "custom-qrcode-browser",
   "version": "0.0.1",
   "description": "Library to generate customizable QR code in browser",
-  "workspaces": [
-    "react",
-    "angular"
-  ],
   "main": "dist/index.js",
-  "types": "types/index.d.ts",
   "module": "dist/index.esm.js",
-  "files": [
-    "dist/",
-    "types/"
-  ],
-  "exports": {
-    ".": [
-      {
-        "import": "./dist/index.mjs",
-        "require": "./dist/index.cjs",
-        "default": "./dist/index.js"
-      },
-      "./dist/index.js"
-    ]
-  },
   "devDependencies": {
+    "@angular/core": "^18.2.5",
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.4",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/glob": "^8.1.0",
+    "@types/google-closure-compiler": "^20231112.0.0",
     "@types/jest": "^29.5.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "commander": "^12.1.0",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-deprecation": "^2.0.0",
+    "filesize": "^10.1.6",
+    "google-closure-compiler": "^20240317.0.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",
     "prettier": "^3.0.3",
@@ -54,8 +44,17 @@
     "test": "jest",
     "lint": "eslint \"*/**/*.{ts,js,json}\"",
     "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
-    "build": "rollup --config ./rollup.config.mjs",
-    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build"
+    "build": "npm run build:react && npm run build:angular",
+    "build:react": "cd react && rollup --config ./rollup.config.mjs",
+    "build:angular": "cd angular && rollup --config ./rollup.config.mjs",
+    "postbuild:angular": "node build_optimizer.js -f angular",
+    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build",
+    "publish": "npm run publish:react && npm run publish:angular",
+    "publish:react": "cd react && npm publish --tag latest",
+    "publish:angular": "cd angular && npm publish --tag latest",
+    "publish:beta": "npm run publish:beta:react && npm run publish:beta:angular",
+    "publish:beta:react": "cd react && npm publish --tag next",
+    "publish:beta:angular": "cd angular && npm publish --tag next"
   },
   "repository": {
     "type": "git",
@@ -70,8 +69,5 @@
   "bugs": {
     "url": "https://github.com/CyrilDesch/custom-qrcode-browser/issues"
   },
-  "homepage": "https://github.com/CyrilDesch/custom-qrcode-browser#readme",
-  "dependencies": {
-    "@zxing/library": "^0.21.3"
-  }
+  "homepage": "https://github.com/CyrilDesch/custom-qrcode-browser#readme"
 }

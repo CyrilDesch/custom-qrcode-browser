@@ -1,4 +1,4 @@
-import { QRCodeDecoderErrorCorrectionLevel } from "@zxing/library";
+import { Ecc } from "../encoder/QrEncoder";
 
 /**
  * Le niveau de correction d'erreur pour les QR codes.
@@ -6,33 +6,16 @@ import { QRCodeDecoderErrorCorrectionLevel } from "@zxing/library";
  */
 export class QrErrorCorrectionLevel {
   private static readonly levels = {
-    Auto: new QrErrorCorrectionLevel(
-      QRCodeDecoderErrorCorrectionLevel.L,
-      "Auto",
-    ),
-    Low: new QrErrorCorrectionLevel(QRCodeDecoderErrorCorrectionLevel.L, "Low"),
-    Medium: new QrErrorCorrectionLevel(
-      QRCodeDecoderErrorCorrectionLevel.M,
-      "Medium",
-    ),
-    MediumHigh: new QrErrorCorrectionLevel(
-      QRCodeDecoderErrorCorrectionLevel.Q,
-      "MediumHigh",
-    ),
-    High: new QrErrorCorrectionLevel(
-      QRCodeDecoderErrorCorrectionLevel.H,
-      "High",
-    ),
+    Low: new QrErrorCorrectionLevel(Ecc.LOW, "Low"),
+    Medium: new QrErrorCorrectionLevel(Ecc.MEDIUM, "Medium"),
+    MediumHigh: new QrErrorCorrectionLevel(Ecc.QUARTILE, "MediumHigh"),
+    High: new QrErrorCorrectionLevel(Ecc.HIGH, "High"),
   };
 
   private constructor(
-    public readonly lvl: QRCodeDecoderErrorCorrectionLevel,
+    public readonly lvl: Ecc,
     public readonly name: string,
   ) {}
-
-  static get Auto(): QrErrorCorrectionLevel {
-    return QrErrorCorrectionLevel.levels.Auto;
-  }
 
   static get Low(): QrErrorCorrectionLevel {
     return QrErrorCorrectionLevel.levels.Low;

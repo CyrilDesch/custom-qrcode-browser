@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.bundle.json",
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true,
+    "strictMetadataEmit": true,
+    "enableResourceInlining": true,
+    "enableIvy": false,
+    "flatModuleId": "@scope/package"
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
+}

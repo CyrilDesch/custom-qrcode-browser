@@ -2,7 +2,7 @@ name: "Continuous Integrations"
 
 on:
   push:
-    branches: ["flop"]
+    branches: ["main"]
 
 jobs:
   lint:

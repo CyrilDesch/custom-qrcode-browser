@@ -9,29 +9,20 @@ import {
 type QrCodeProps = {
   data: QrData;
   options?: QrOptions;
-  charset?: string | null;
-  width?: number;
-  height?: number;
 };
 
 const QrCode: React.FC<QrCodeProps> = ({
   data,
   options = new QrOptionsBuilder().build(),
-  charset = null,
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
     if (svgRef.current) {
-      const qrCodeCore = QrCodeGenerator(
-        svgRef.current,
-        data,
-        options,
-        charset,
-      );
+      const qrCodeCore = QrCodeGenerator(svgRef.current, data, options);
       qrCodeCore.generateSvg();
     }
-  }, [data, options, charset]);
+  }, [data, options]);
 
   return <svg ref={svgRef} />;
 };

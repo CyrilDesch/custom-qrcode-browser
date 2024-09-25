@@ -1,6 +1,7 @@
 // @ts-check
-import typescript2 from "rollup-plugin-typescript2";
+import typescript from "rollup-plugin-typescript2";
 import packageJSON from "./package.json" assert { type: "json" };
+import terser from "@rollup/plugin-terser";
 
 /**
  * Comment with library information to be appended in the generated bundles.
@@ -22,41 +23,32 @@ function createOutputOptions(options) {
     banner,
     name: "[CustomQrCodeBrowser]",
     exports: "named",
-    sourcemap: true,
+    sourcemap: false,
     ...options,
   };
 }
 
 /**
- * @type {import('rollup').RollupOptions}
+ * Configuration de base pour Rollup.
+ * @param {string} input - Le fichier d'entrée du bundle.
+ * @param {string} outputDir - Le répertoire de sortie pour le bundle.
+ * @param {string[]} externalDeps - Les dépendances externes.
+ * @returns {Object} - Configuration pour Rollup.
  */
-const options = {
-  input: "./src/index.ts",
+const baseConfig = (input, outputDir, externalDeps, framework) => ({
+  input,
   output: [
     createOutputOptions({
-      file: "${outputDir}/dist/index.js",
-      format: "commonjs",
-    }),
-    createOutputOptions({
-      file: "./${outputDir}/dist/index.cjs",
-      format: "commonjs",
-    }),
-    createOutputOptions({
-      file: "./${outputDir}/dist/index.mjs",
-      format: "esm",
-    }),
-    createOutputOptions({
-      file: "./${outputDir}/dist/index.esm.js",
-      format: "esm",
+      file: `./${outputDir}/index.js`,
+      format: "es",
     }),
   ],
+  external: externalDeps,
   plugins: [
-    typescript2({
-      clean: true,
-      useTsconfigDeclarationDir: true,
-      tsconfig: "./tsconfig.bundle.json",
+    typescript({
+      tsconfig: `./${framework}/tsconfig.bundle.json`,
     }),
   ],
-};
+});
 
-export default options;
+export default baseConfig;

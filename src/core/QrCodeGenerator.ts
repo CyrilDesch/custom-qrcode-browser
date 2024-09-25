@@ -1,8 +1,8 @@
 import { type QrData } from "../encoder/QrData";
 import { QrCodeMatrix, toQrMatrix } from "../encoder/QrCodeMatrix";
 import { QrOptions, QrOptionsBuilder } from "../options/QrOptions";
-import { QRCodeEncoder, EncodeHintType } from "@zxing/library";
 import { QrShapesDesigner } from "../style/QrShapesDesigner";
+import { QrCode } from "../encoder/QrEncoder";
 
 /**
  * Fonction principale pour créer un QR code en SVG
@@ -16,9 +16,8 @@ export function QrCodeGenerator(
   svgElement: SVGSVGElement,
   data: QrData,
   options: QrOptions = new QrOptionsBuilder().build(),
-  charset: string | null = null,
 ): QrCodeGeneratorImpl {
-  return new QrCodeGeneratorImpl(svgElement, data, options, charset);
+  return new QrCodeGeneratorImpl(svgElement, data, options);
 }
 
 class QrCodeGeneratorImpl {
@@ -29,22 +28,16 @@ class QrCodeGeneratorImpl {
     svgElement: SVGSVGElement,
     data: QrData,
     private options: QrOptions,
-    charset: string | null = null,
   ) {
     this.svg = svgElement;
 
-    const hints = new Map<EncodeHintType, unknown>();
-    if (charset) {
-      hints.set(EncodeHintType.CHARACTER_SET, charset);
-    }
-
-    const code = QRCodeEncoder.encode(
+    QrCode.encodeSegments;
+    const code = QrCode.encodeText(
       data.encode(),
       options.errorCorrectionLevel.lvl,
-      hints,
     );
 
-    this.codeMatrix = options.shapes.qrCode.apply(toQrMatrix(code.getMatrix()));
+    this.codeMatrix = options.shapes.qrCode.apply(toQrMatrix(code));
   }
 
   public generateSvg(): void {

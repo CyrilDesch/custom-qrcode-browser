@@ -1,0 +1,14 @@
+{
+  "name": "@custom-qrcode-browser/angular",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/angular/src/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=18.0.0"
+  }
+}

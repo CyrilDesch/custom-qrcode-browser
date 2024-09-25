@@ -1,5 +1,5 @@
-import type { QRCodeByteMatrix } from "@zxing/library";
 import { Neighbors } from "../utils/Neighbors";
+import type { QrCode } from "./QrEncoder";
 
 /**
  * Types de pixels dans le QR Code.
@@ -101,9 +101,9 @@ export function getNeighbors(
  * @returns Une instance de QrCodeMatrix
  * @throws Si la matrice n'est pas carrée
  */
-export function toQrMatrix(byteMatrix: QRCodeByteMatrix): QrCodeMatrix {
-  const width = byteMatrix.getWidth();
-  const height = byteMatrix.getHeight();
+export function toQrMatrix(byteMatrix: QrCode): QrCodeMatrix {
+  const width = byteMatrix.size;
+  const height = byteMatrix.size;
 
   if (width !== height) {
     throw new Error("Non-square QR byte matrix");
@@ -113,11 +113,11 @@ export function toQrMatrix(byteMatrix: QRCodeByteMatrix): QrCodeMatrix {
 
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
-      const value = byteMatrix.get(i, j);
+      const value = byteMatrix.getModule(i, j);
       qrMatrix.set(
         i,
         j,
-        value === 1 ? PixelType.DarkPixel : PixelType.LightPixel,
+        value === true ? PixelType.DarkPixel : PixelType.LightPixel,
       );
     }
   }
