@@ -1,11 +1,6 @@
 {
-  "name": "custom-qrcode-browser",
-  "version": "0.0.1",
-  "description": "Library to generate customizable QR code in browser",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
   "devDependencies": {
-    "@angular/core": "^18.2.5",
+    "@angular/core": "^14.3.0",
     "@rollup/plugin-commonjs": "^28.0.0",
     "@rollup/plugin-node-resolve": "^15.2.4",
     "@rollup/plugin-terser": "^0.4.4",
@@ -33,13 +28,10 @@
     "ts-jest": "^29.1.1",
     "ts-jest-resolver": "^2.0.1",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.1",
-    "typedoc-plugin-markdown": "^3.16.0",
     "typescript": "^5.6.2",
     "vite": "^5.4.5"
   },
   "scripts": {
-    "doc": "typedoc src/QrCodeGenerator.ts",
     "start": "vite dev",
     "test": "jest",
     "lint": "eslint \"*/**/*.{ts,js,json}\"",
@@ -48,6 +40,7 @@
     "build:react": "cd react && rollup --config ./rollup.config.mjs",
     "build:angular": "cd angular && rollup --config ./rollup.config.mjs",
     "postbuild:angular": "node build_optimizer.js -f angular",
+    "postbuild:react": "node build_optimizer.js -f react",
     "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build",
     "publish": "npm run publish:react && npm run publish:angular",
     "publish:react": "cd react && npm publish --tag latest",
@@ -56,18 +49,9 @@
     "publish:beta:react": "cd react && npm publish --tag next",
     "publish:beta:angular": "cd angular && npm publish --tag next"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CyrilDesch/custom-qrcode-browser.git"
-  },
-  "keywords": [],
   "author": {
-    "name": "Cyril Deschamps"
+    "name": "Cyril Deschamps (https://cyrildeschamps.fr)"
   },
-  "type": "module",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/CyrilDesch/custom-qrcode-browser/issues"
-  },
-  "homepage": "https://github.com/CyrilDesch/custom-qrcode-browser#readme"
+  "type": "module"
 }

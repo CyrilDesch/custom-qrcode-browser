@@ -32,3 +32,4 @@ pnpmfile.js
 */dist/
 
 .npmrc
+.npmignore

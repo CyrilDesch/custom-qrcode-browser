@@ -1,3 +1,4 @@
+// @suppress
 import {
   Component,
   type ElementRef,

@@ -1,22 +1,21 @@
 # Custom QrCode Browser
 
-[![Continuous Integrations](https://github.com/CyrilDesch/custom-qrcode-browser/actions/workflows/continuous-integrations.yaml/badge.svg?branch=main)](https://github.com/CyrilDesch/custom-qrcode-browser/actions/workflows/continuous-integrations.yaml)
-[![License](https://badgen.net/github/license/CyrilDesch/custom-qrcode-browser)](./LICENSE)
-[![Package tree-shaking](https://badgen.net/bundlephobia/tree-shaking/custom-qrcode-browser)](https://bundlephobia.com/package/custom-qrcode-browser)
-[![Package minified & gzipped size](https://badgen.net/bundlephobia/minzip/custom-qrcode-browser)](https://bundlephobia.com/package/custom-qrcode-browser)
-[![Package dependency count](https://badgen.net/bundlephobia/dependency-count/reactcustom-qrcode-browser)](https://bundlephobia.com/package/custom-qrcode-browser)
+Library to generate high customizable QR code in browser. Available for Angular and React in browser environment.
 
-## Installation
+Fast, lightweight, and easy to use.
 
-This library is published in the NPM registry and can be installed using any compatible package manager.
+## Fast
 
-```sh
-npm install custom-qrcode-browser --save
+Use HTML5 and SVG to render QR code instantly.
 
-# For Yarn, use the command below.
-yarn add custom-qrcode-browser
+## Lightweight
+
+Optimize by Google closure compiler.
+
+## Easy to use
+
+Components available for Angular and React.
 
 ## License
 
 Released under [MIT License](./LICENSE).
-```

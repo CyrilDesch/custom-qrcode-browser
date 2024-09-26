@@ -1,10 +1,7 @@
 import GCompiler from "google-closure-compiler";
 const { compiler: closureCompiler } = GCompiler;
-import { gzipSync } from "zlib";
-import { readFileSync, writeFileSync, statSync } from "fs";
-import { join } from "path";
-import filesize from "filesize";
 import { Command } from "commander";
+import fs from "fs";
 
 const program = new Command();
 
@@ -24,47 +21,38 @@ if (!["angular", "react"].includes(options.framework)) {
 const distPath = `${options.framework}/dist`;
 
 // Gestion des fichiers en fonction du framework choisi
-let files = [];
-if (options.framework === "angular") {
-  files.push("node_modules/@angular/core/fesm2022/core.mjs");
-} else if (options.framework === "react") {
-  files = [
-    "node_modules/react/umd/react.development.js",
-    "node_modules/react-dom/umd/react-dom.development.js",
-  ];
-}
-files.push(`${distPath}/index.js`);
+let jsFile = `${distPath}/index.js`;
 
 // Configuration du compilateur Closure avec les fichiers et options dynamiques
 const compiler = new closureCompiler({
-  js: files,
+  js: jsFile,
   language_in: "ECMASCRIPT_2021",
   language_out: "ECMASCRIPT_2021",
   compilation_level: "ADVANCED_OPTIMIZATIONS",
-  entry_point: `${distPath}/index.js`,
+  entry_point: jsFile,
   js_output_file: `${distPath}/index.min.js`,
-  create_source_map: "%outname%.map",
   rewrite_polyfills: false,
+  create_source_map: "%outname%.map",
   warning_level: "QUIET",
-  js_module_root: "node_modules",
   process_common_js_modules: true,
+  dependency_mode: "PRUNE",
   module_resolution: "NODE",
+  jscomp_off: "*", // To ignore react and angular lib
 });
 
 // Exécution de la compilation
 compiler.run((exitCode, _stdout, stderr) => {
   if (exitCode === 0) {
-    let srcFile = join(__dirname, `dist/bundle.${options.framework}.js`);
-    let gzipDest = join(__dirname, `dist/bundle.${options.framework}.js.gz`);
-    let srcCode = readFileSync(srcFile);
-    writeFileSync(gzipDest, gzipSync(srcCode, { level: 9 }));
+    // Remove source file js entry_point from dist folder
 
-    let jsSize = filesize(statSync(srcFile).size);
-    let gzipSize = filesize(statSync(gzipDest).size);
+    fs.unlink(jsFile, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(`${jsFile} was deleted`);
+    });
 
-    console.log(
-      `bundle.${options.framework}.js (${jsSize}) -> bundle.${options.framework}.js.gz (${gzipSize})`,
-    );
     console.log("Build successful.");
   } else {
     console.error(stderr);

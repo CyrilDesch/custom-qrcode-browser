@@ -1,13 +1,11 @@
-// @ts-check
 import typescript from "rollup-plugin-typescript2";
 import packageJSON from "./package.json" assert { type: "json" };
-import terser from "@rollup/plugin-terser";
 
 /**
  * Comment with library information to be appended in the generated bundles.
  */
 const banner = `/*!
- * ${packageJSON.name} v${packageJSON.version}
+ * ${packageJSON.name}
  * (c) ${packageJSON.author.name}
  * Released under the ${packageJSON.license} License.
  */
