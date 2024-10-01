@@ -1,6 +1,6 @@
 {
   "name": "custom-qrcode-browser",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "lib/index.mjs",
   "module": "lib/index.mjs",
   "types": "lib/types/index.d.ts",
@@ -10,6 +10,7 @@
     "README.md"
   ],
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
@@ -34,15 +35,12 @@
     "prebuild": "rm -rf lib",
     "build": "rollup --config ./rollup.config.mjs",
     "postbuild": "cp README.md package.json LICENSE lib/",
-    "publish": "npm publish --tag latest",
-    "publish:beta": "npm publish --tag next"
+    "packpublish": "npm publish --tag latest",
+    "packpublish:beta": "npm publish --tag next"
   },
   "author": {
     "name": "Cyril Deschamps (https://cyrildeschamps.fr)"
   },
   "license": "MIT",
-  "type": "module",
-  "dependencies": {
-    "@rollup/plugin-terser": "^0.4.4"
-  }
+  "type": "module"
 }
