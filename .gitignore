@@ -21,7 +21,7 @@ pnpmfile.js
 *.log
 *.log.*
 
-*/lib/
+lib/
 
 .npmrc
 .npmignore

@@ -11,7 +11,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   plugins: ["@typescript-eslint"],
-  ignorePatterns: ["*.cjs", "/lib"],
+  ignorePatterns: ["*.cjs", "/lib", "rollup.config.mjs", "vite.config.ts"],
   extends: [
     "eslint:recommended",
     "prettier",
