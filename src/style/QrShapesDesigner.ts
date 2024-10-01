@@ -62,10 +62,17 @@ export class QrShapesDesigner {
       y: this.qrYOrigin + eyeFrameSize - 1,
     };
 
+    // Coordonnées du pattern d'alignement
+    const alignmentPatternPosition = {
+      x: this.qrXEnd - 9,
+      y: this.qrYEnd - 9,
+    };
+
     return {
-      timingLineSvg: timingLinePosition,
-      eyeFramesSvg: eyesFramesPositions,
-      eyesSvg: eyesPositions,
+      timingLinePosition,
+      eyesFramesPositions,
+      eyesPositions,
+      alignmentPatternPosition,
     };
   }
 
@@ -84,15 +91,16 @@ export class QrShapesDesigner {
 
     if (this.shapes.timingLine) {
       const timingLineSvg = this.shapes.timingLine.createSvgElement(
-        this.qrCodeElementStartCoordinate.timingLineSvg.x,
-        this.qrCodeElementStartCoordinate.timingLineSvg.y,
+        this.qrCodeElementStartCoordinate.timingLinePosition.x,
+        this.qrCodeElementStartCoordinate.timingLinePosition.y,
         this,
       );
       qrGroupedElements.push(timingLineSvg);
     }
 
     if (this.shapes.eyeFrame) {
-      for (const eyeFrame of this.qrCodeElementStartCoordinate.eyeFramesSvg) {
+      for (const eyeFrame of this.qrCodeElementStartCoordinate
+        .eyesFramesPositions) {
         const eyeFrameSvg = this.shapes.eyeFrame.createSvgElement(
           eyeFrame.x,
           eyeFrame.y,
@@ -103,7 +111,7 @@ export class QrShapesDesigner {
     }
 
     if (this.shapes.eye) {
-      for (const eye of this.qrCodeElementStartCoordinate.eyesSvg) {
+      for (const eye of this.qrCodeElementStartCoordinate.eyesPositions) {
         const eyeSvg = this.shapes.eye.createSvgElement(eye.x, eye.y, this);
         qrGroupedElements.push(eyeSvg);
       }
@@ -112,6 +120,15 @@ export class QrShapesDesigner {
     if (this.shapes.logo) {
       const logo = this.shapes.logo.createSvgElement(this.mainSvg, this);
       qrGroupedElements.push(logo);
+    }
+
+    if (this.shapes.alignmentPattern) {
+      const alignmentPatternSvg = this.shapes.alignmentPattern.createSvgElement(
+        this.qrCodeElementStartCoordinate.alignmentPatternPosition.x,
+        this.qrCodeElementStartCoordinate.alignmentPatternPosition.y,
+        this,
+      );
+      qrGroupedElements.push(alignmentPatternSvg);
     }
 
     // Draw the QR code matrix

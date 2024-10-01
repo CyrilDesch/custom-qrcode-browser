@@ -1,5 +1,6 @@
 import typescript from "rollup-plugin-typescript2";
 import packageJSON from "./package.json" assert { type: "json" };
+import terser from "@rollup/plugin-terser";
 
 /**
  * Comment with library information to be appended in the generated bundles.
@@ -21,32 +22,25 @@ function createOutputOptions(options) {
     banner,
     name: "[CustomQrCodeBrowser]",
     exports: "named",
-    sourcemap: false,
+    sourcemap: true,
     ...options,
   };
 }
 
-/**
- * Configuration de base pour Rollup.
- * @param {string} input - Le fichier d'entrée du bundle.
- * @param {string} outputDir - Le répertoire de sortie pour le bundle.
- * @param {string[]} externalDeps - Les dépendances externes.
- * @returns {Object} - Configuration pour Rollup.
- */
-const baseConfig = (input, outputDir, externalDeps, framework) => ({
-  input,
+export default {
+  input: "./src/index.ts",
   output: [
     createOutputOptions({
-      file: `./${outputDir}/index.js`,
+      file: `./lib/index.mjs`,
       format: "es",
     }),
   ],
-  external: externalDeps,
   plugins: [
+    terser(),
     typescript({
-      tsconfig: `./${framework}/tsconfig.bundle.json`,
+      tsconfig: `./tsconfig.json`,
+      useTsconfigDeclarationDir: true,
+      sourceMap: true,
     }),
   ],
-});
-
-export default baseConfig;
+};

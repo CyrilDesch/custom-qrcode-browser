@@ -27,7 +27,7 @@ export class QrOptionsBuilder {
   public sizeRatio: number = 1;
   public shapes: QrShapes = new QrShapes();
   public errorCorrectionLevel: QrErrorCorrectionLevel =
-    QrErrorCorrectionLevel.Low as QrErrorCorrectionLevel;
+    QrErrorCorrectionLevel.Low;
 
   setSizeRatio(sizeRatio: number): QrOptionsBuilder {
     this.sizeRatio = 1 - sizeRatio;

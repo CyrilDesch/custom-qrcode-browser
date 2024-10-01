@@ -1,3 +1,4 @@
+import type { IQrAlignmentPatternShape } from "../style/shapes/QrAlignmentPattern";
 import { QrBackground } from "../style/shapes/QrBackground";
 import { type IQrEyeFrameShape } from "../style/shapes/QrEyeFrameShape";
 import { type IQrEyeShape } from "../style/shapes/QrEyeShape";
@@ -21,6 +22,7 @@ export interface IQrShapes {
   logo: IQrLogoShape | null;
   background: QrBackground | null;
   qrCode: IQrShape;
+  alignmentPattern: IQrAlignmentPatternShape | null;
 }
 
 /**
@@ -35,6 +37,7 @@ export class QrShapes implements IQrShapes {
   logo: IQrLogoShape | null;
   background: QrBackground | null;
   qrCode: IQrShape;
+  alignmentPattern: IQrAlignmentPatternShape | null;
 
   constructor(
     matrix: IQrMatrixShape = new QrMatrixShape(new QrPixelShape.Square()),
@@ -44,6 +47,7 @@ export class QrShapes implements IQrShapes {
     logo: IQrLogoShape | null = null,
     background: QrBackground | null = null,
     qrCode: IQrShape = new QrShape.Square(),
+    alignmentPattern: IQrAlignmentPatternShape | null = null,
   ) {
     this.matrix = matrix;
     this.eye = eye;
@@ -52,5 +56,6 @@ export class QrShapes implements IQrShapes {
     this.logo = logo;
     this.background = background;
     this.qrCode = qrCode;
+    this.alignmentPattern = alignmentPattern;
   }
 }

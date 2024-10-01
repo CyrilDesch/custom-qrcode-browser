@@ -1,7 +1,0 @@
-{
-  "out": "./docs",
-  "name": "[Custom QrCode Browser]",
-  "plugin": ["typedoc-plugin-markdown"],
-  "readme": "none",
-  "tsconfig": "./tsconfig.bundle.json"
-}

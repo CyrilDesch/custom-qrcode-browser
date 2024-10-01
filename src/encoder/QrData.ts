@@ -1,10 +1,10 @@
 // Interface de base pour tous les types de QR Data
-export interface QrData {
+export interface IQrData {
   encode(): string;
 }
 
 // Classe pour les textes simples
-export class Text implements QrData {
+class Text implements IQrData {
   constructor(public value: string) {}
 
   encode(): string {
@@ -13,7 +13,7 @@ export class Text implements QrData {
 }
 
 // Classe pour les URLs
-export class Url implements QrData {
+class Url implements IQrData {
   constructor(public url: string) {}
 
   encode(): string {
@@ -22,7 +22,7 @@ export class Url implements QrData {
 }
 
 // Classe pour les emails
-export class Email implements QrData {
+class Email implements IQrData {
   constructor(
     public email: string,
     public copyTo?: string,
@@ -47,7 +47,7 @@ export class Email implements QrData {
 }
 
 // Classe pour les coordonnées géographiques
-export class GeoPos implements QrData {
+class GeoPos implements IQrData {
   constructor(
     public lat: number,
     public lon: number,
@@ -59,7 +59,7 @@ export class GeoPos implements QrData {
 }
 
 // Classe pour les bookmarks
-export class Bookmark implements QrData {
+class Bookmark implements IQrData {
   constructor(
     public url: string,
     public title: string,
@@ -70,10 +70,17 @@ export class Bookmark implements QrData {
   }
 }
 
+// Namespace pour l'authentification Wi-Fi
+enum Authentication {
+  WEP = "WEP",
+  WPA = "WPA",
+  OPEN = "nopass",
+}
+
 // Classe pour les Wi-Fi
-export class Wifi implements QrData {
+class Wifi implements IQrData {
   constructor(
-    public authentication?: Authentication,
+    public authentication?: Authentication | undefined,
     public ssid?: string,
     public psk?: string,
     public hidden: boolean = false,
@@ -99,15 +106,8 @@ export class Wifi implements QrData {
   }
 }
 
-// Namespace pour l'authentification Wi-Fi
-export enum Authentication {
-  WEP = "WEP",
-  WPA = "WPA",
-  OPEN = "nopass",
-}
-
 // Classe pour le Wi-Fi d'entreprise
-export class EnterpriseWifi implements QrData {
+class EnterpriseWifi implements IQrData {
   constructor(
     public ssid?: string,
     public psk?: string,
@@ -130,7 +130,7 @@ export class EnterpriseWifi implements QrData {
 }
 
 // Classe pour les numéros de téléphone
-export class Phone implements QrData {
+class Phone implements IQrData {
   constructor(public phoneNumber: string) {}
 
   encode(): string {
@@ -139,7 +139,7 @@ export class Phone implements QrData {
 }
 
 // Classe pour les SMS ou MMS
-export class SMS implements QrData {
+class SMS implements IQrData {
   constructor(
     public phoneNumber: string,
     public subject: string,
@@ -152,7 +152,7 @@ export class SMS implements QrData {
 }
 
 // Classe pour les cartes de visite
-export class BizCard implements QrData {
+class BizCard implements IQrData {
   constructor(
     public firstName?: string,
     public secondName?: string,
@@ -179,7 +179,7 @@ export class BizCard implements QrData {
 }
 
 // Classe pour les VCards
-export class VCard implements QrData {
+class VCard implements IQrData {
   constructor(
     public name?: string,
     public company?: string,
@@ -208,7 +208,7 @@ export class VCard implements QrData {
 }
 
 // Classe pour les MeCards
-export class MeCard implements QrData {
+class MeCard implements IQrData {
   constructor(
     public name?: string,
     public address?: string,
@@ -229,7 +229,7 @@ export class MeCard implements QrData {
 }
 
 // Classe pour les vidéos YouTube
-export class YouTube implements QrData {
+class YouTube implements IQrData {
   constructor(public videoId: string) {}
 
   encode(): string {
@@ -238,7 +238,7 @@ export class YouTube implements QrData {
 }
 
 // Classe pour les événements
-export class Event implements QrData {
+class Event implements IQrData {
   constructor(
     public uid?: string,
     public stamp?: string,
@@ -263,10 +263,28 @@ export class Event implements QrData {
 }
 
 // Classe pour les applications Google Play
-export class GooglePlay implements QrData {
+class GooglePlay implements IQrData {
   constructor(public appPackage: string) {}
 
   encode(): string {
     return `market://details?id=${this.appPackage}`;
   }
 }
+
+export const QrData = {
+  Text,
+  Url,
+  Email,
+  GeoPos,
+  Bookmark,
+  Wifi,
+  EnterpriseWifi,
+  Phone,
+  SMS,
+  BizCard,
+  VCard,
+  MeCard,
+  YouTube,
+  Event,
+  GooglePlay,
+};

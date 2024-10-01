@@ -95,6 +95,31 @@ export function getNeighbors(
   );
 }
 
+export function getReverseNeighbors(
+  matrix: QrCodeMatrix,
+  i: number,
+  j: number,
+): Neighbors {
+  function cmp(i2: number, j2: number): boolean {
+    try {
+      return matrix.get(i2, j2) !== matrix.get(i, j);
+    } catch {
+      return false;
+    }
+  }
+
+  return new Neighbors(
+    cmp(i, j - 1), // top
+    cmp(i + 1, j), // right
+    cmp(i, j + 1), // bottom
+    cmp(i - 1, j), // left
+    cmp(i + 1, j - 1), // topRight
+    cmp(i + 1, j + 1), // bottomRight
+    cmp(i - 1, j + 1), // bottomLeft
+    cmp(i - 1, j - 1), // topLeft
+  );
+}
+
 /**
  * Convertit une ByteMatrix en QrCodeMatrix.
  * @param byteMatrix La matrice de bytes à convertir

@@ -13,7 +13,7 @@ export interface IQrEyeShape extends IQrSVGShape {}
 
 abstract class BaseEyeShape implements IQrEyeShape {
   constructor(
-    public sizeRatio: number = 1,
+    public size: number = eyeSize,
     public color: IQrColor = new QrColor.Solid("black"),
   ) {}
 
@@ -28,8 +28,8 @@ abstract class BaseEyeShape implements IQrEyeShape {
     y: number,
     designer: QrShapesDesigner,
   ) {
-    for (let i = x; i < x + eyeSize; i++) {
-      for (let j = y; j < y + eyeSize; j++) {
+    for (let i = x; i < x + this.size; i++) {
+      for (let j = y; j < y + this.size; j++) {
         designer.addUsedCoordinate(i, j);
       }
     }
@@ -42,10 +42,10 @@ abstract class BaseEyeShape implements IQrEyeShape {
 export class SquareEyeShape extends BaseEyeShape {
   constructor(
     public cornerRadius: number = 0,
-    sizeRatio: number = 1,
+    size: number = eyeSize,
     color: IQrColor,
   ) {
-    super(sizeRatio, color);
+    super(size, color);
   }
 
   createSvgElement(
@@ -56,11 +56,12 @@ export class SquareEyeShape extends BaseEyeShape {
     this.addEyeCoordinates(x, y, designer);
 
     const rect = document.createElementNS(SVG_NS, "rect");
-    const fitSize = eyeSize * this.sizeRatio;
+    const fitSize = this.size;
     const corner = Math.min(Math.max(this.cornerRadius, 0), 0.5) * fitSize;
+    const fitPadding = Math.max((eyeSize - fitSize) / 2, 0);
 
-    rect.setAttribute("x", (x + (eyeSize - fitSize) / 2).toString());
-    rect.setAttribute("y", (y + (eyeSize - fitSize) / 2).toString());
+    rect.setAttribute("x", (x + fitPadding).toString());
+    rect.setAttribute("y", (y + fitPadding).toString());
     rect.setAttribute("width", fitSize.toString());
     rect.setAttribute("height", fitSize.toString());
     rect.setAttribute("rx", corner.toString());
@@ -83,7 +84,7 @@ export class CircleEyeShape extends BaseEyeShape {
     this.addEyeCoordinates(x, y, designer);
 
     const circle = document.createElementNS(SVG_NS, "circle");
-    const radius = (eyeSize / 2) * this.sizeRatio;
+    const radius = this.size / 2;
 
     circle.setAttribute("cx", (x + centerOffset).toString());
     circle.setAttribute("cy", (y + centerOffset).toString());
@@ -106,7 +107,7 @@ export class RhombusEyeShape extends BaseEyeShape {
     this.addEyeCoordinates(x, y, designer);
 
     const polygon = document.createElementNS(SVG_NS, "polygon");
-    const fitSize = eyeSize * this.sizeRatio;
+    const fitSize = this.size;
     const halfSize = fitSize / 2;
 
     // Points d'un losange

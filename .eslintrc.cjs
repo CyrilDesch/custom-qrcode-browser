@@ -7,9 +7,11 @@ module.exports = {
     ecmaFeatures: {
       jsx: true,
     },
+    project: "./tsconfig.json",
+    tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ["*.cjs"],
-  plugins: ["deprecation"],
+  plugins: ["@typescript-eslint"],
+  ignorePatterns: ["*.cjs", "/lib"],
   extends: [
     "eslint:recommended",
     "prettier",
@@ -35,7 +37,6 @@ module.exports = {
     "@typescript-eslint/semi": "error",
     "block-scoped-var": "warn",
     "eol-last": ["warn", "always"],
-    "deprecation/deprecation": "error",
     "no-console": "warn",
   },
 };

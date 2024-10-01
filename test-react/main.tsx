@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  Url,
   QrOptionsBuilder,
   QrColor,
   QrErrorCorrectionLevel,
@@ -12,8 +11,10 @@ import {
   QrPixelShape,
   QrShape,
   QrShapes,
+  QrData,
 } from "../src";
-import QrCode from "../react/src/components/QrCode";
+import QrCode from "./QrCode";
+import { QrAlignmentPatternShape } from "../src/style/shapes/QrAlignmentPattern";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
@@ -29,7 +30,9 @@ const App = () => {
   }, []);
 
   const [data, options] = useMemo(() => {
-    const data = new Url("https://www.starbucks.ca/account/create/register");
+    const data = new QrData.Url(
+      "https://www.starbucks.ca/account/create/register",
+    );
     const options = new QrOptionsBuilder()
       .setErrorCorrectionLevel(QrErrorCorrectionLevel.High)
       .setSizeRatio(1)
@@ -39,15 +42,19 @@ const App = () => {
             new QrPixelShape.RoundCorners(0.8, 0.4),
             new QrColor.Solid("#010001"),
           ),
-          new QrEyeShape.Square(0.2, 1, new QrColor.Solid("#017049")),
+          new QrEyeShape.Square(0.2, undefined, new QrColor.Solid("#017049")),
           new QrEyeFrameShape.Square(
-            new QrPixelShape.NeighborAware(1, 1.5),
+            new QrPixelShape.NeighborAware(1, 0.25),
             new QrColor.Solid("#017049"),
           ),
           null,
           new QrLogoShape.Circle(svg, 0.5, 1.5, new QrColor.Solid("white")),
           null,
           new QrShape.Square(),
+          new QrAlignmentPatternShape.Square(
+            new QrPixelShape.NeighborAware(1, 0.3),
+            new QrColor.Solid("#017049"),
+          ),
         ),
       )
       .build();

@@ -106,6 +106,14 @@ class SquareShape extends BaseLogoShape {
     const y = (height - logoSize) / 2;
     const svgElements = [];
 
+    this.addLogoCoordinates(
+      Math.round(x),
+      Math.round(y),
+      logoSize,
+      logoSize,
+      designer,
+    );
+
     // Création du fond carré
     const bgRect = document.createElementNS(SVG_NS, "rect");
     bgRect.setAttribute("x", x.toString());
@@ -250,6 +258,14 @@ class RoundCornersShape extends BaseLogoShape {
     const cornerRadius = logoSize * 0.1;
     const svgElements = [];
 
+    this.addLogoCoordinates(
+      Math.round(x),
+      Math.round(y),
+      logoSize,
+      logoSize,
+      designer,
+    );
+
     // Création du fond à coins arrondis
     const bgRect = document.createElementNS(SVG_NS, "rect");
     bgRect.setAttribute("x", x.toString());
@@ -315,6 +331,9 @@ class RhombusShape extends BaseLogoShape {
     const halfSize = logoSize / 2;
     const svgElements = [];
 
+    // Ajouter les coordonnées couvertes par le logo losange
+    this.addRhombusLogoCoordinates(cx - 0.5, cy - 0.5, halfSize, designer);
+
     // Points du losange
     const points = [
       `${cx},${cy - halfSize}`,
@@ -367,6 +386,30 @@ class RhombusShape extends BaseLogoShape {
     }
 
     return createSvgGroupFromElements(svgElements);
+  }
+
+  private addRhombusLogoCoordinates(
+    cx: number,
+    cy: number,
+    halfSize: number,
+    designer: QrShapesDesigner,
+  ) {
+    const minX = Math.floor(cx - halfSize);
+    const maxX = Math.ceil(cx + halfSize);
+    const minY = Math.floor(cy - halfSize);
+    const maxY = Math.ceil(cy + halfSize);
+
+    // Parcours de chaque point dans la zone couverte par le losange
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        // Vérifier si le point est dans le losange en utilisant la formule du losange
+        const dx = Math.abs(x - cx) / halfSize;
+        const dy = Math.abs(y - cy) / halfSize;
+        if (dx + dy <= 1) {
+          designer.addUsedCoordinate(x, y); // Ajoute les coordonnées utilisées
+        }
+      }
+    }
   }
 }
 

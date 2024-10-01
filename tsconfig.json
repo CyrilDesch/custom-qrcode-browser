@@ -4,7 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "target": "ES2021",
-    "module": "ESNext",
+    "module": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
 
@@ -21,12 +21,20 @@
     "noUnusedParameters": true,
     "strict": true,
     "verbatimModuleSyntax": true,
+    "removeComments": true,
 
     // Type-checking settings.
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["es2020", "dom"],
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
-    "types": ["jest"]
+
+    "declaration": true,
+    "declarationMap": false,
+    "declarationDir": "./lib/types",
+
+    // Output settings.
+    "newLine": "LF",
+    "sourceMap": true
   },
   "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

@@ -1,8 +1,8 @@
-import { type QrData } from "../encoder/QrData";
 import { QrCodeMatrix, toQrMatrix } from "../encoder/QrCodeMatrix";
 import { QrOptions, QrOptionsBuilder } from "../options/QrOptions";
 import { QrShapesDesigner } from "../style/QrShapesDesigner";
 import { QrCode } from "../encoder/QrEncoder";
+import type { IQrData } from "../encoder/QrData";
 
 /**
  * Fonction principale pour créer un QR code en SVG
@@ -14,7 +14,7 @@ import { QrCode } from "../encoder/QrEncoder";
  */
 export function QrCodeGenerator(
   svgElement: SVGSVGElement,
-  data: QrData,
+  data: IQrData,
   options: QrOptions = new QrOptionsBuilder().build(),
 ): QrCodeGeneratorImpl {
   return new QrCodeGeneratorImpl(svgElement, data, options);
@@ -26,7 +26,7 @@ class QrCodeGeneratorImpl {
 
   constructor(
     svgElement: SVGSVGElement,
-    data: QrData,
+    data: IQrData,
     private options: QrOptions,
   ) {
     this.svg = svgElement;
