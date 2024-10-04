@@ -1,9 +1,6 @@
 import { Neighbors } from "../utils/Neighbors";
 import type { QrCode } from "./QrEncoder";
 
-/**
- * Types de pixels dans le QR Code.
- */
 export enum PixelType {
   DarkPixel = "DarkPixel",
   LightPixel = "LightPixel",
@@ -11,77 +8,85 @@ export enum PixelType {
 }
 
 /**
- * Représentation d'une matrice de QR code.
+ * Represents a matrix with pixel types for QrCode.
+ * The matrix is now a 2D array.
  */
 export class QrCodeMatrix {
+  private matrix: PixelType[][];
   public size: number;
-  private types: PixelType[];
   public origin = 0;
 
   constructor(size: number) {
     this.size = size;
-    // Initialisation du tableau avec des pixels de fond par défaut
-    this.types = Array(size * size).fill(PixelType.Background);
+    this.matrix = Array.from({ length: size }, () =>
+      Array(size).fill(PixelType.Background),
+    );
   }
 
   /**
-   * Récupère le type de pixel à une position donnée.
-   * @param i Indice de la ligne
-   * @param j Indice de la colonne
+   * Retrieves the pixel type at a given position (i, j).
+   * Throws an error if the indices are out of bounds.
    */
   get(i: number, j: number): PixelType {
-    if (i < 0 || i >= this.size || j < 0 || j >= this.size) {
+    if (this.isOutOfBounds(i, j)) {
       throw new RangeError(
         `Index (${i}, ${j}) is out of bounds for a matrix of size ${this.size}.`,
       );
     }
-    const pixel = this.types[i + j * this.size];
-    if (pixel === undefined) {
-      throw new Error(`Pixel at index (${i}, ${j}) is undefined.`);
-    }
-    return pixel;
+    return this.matrix[i]![j]!;
   }
 
   /**
-   * Définit un type de pixel à une position donnée.
-   * @param i Indice de la ligne
-   * @param j Indice de la colonne
-   * @param type Type de pixel à définir
+   * Sets the pixel type at a given position (i, j).
+   * Throws an error if the indices are out of bounds.
    */
   set(i: number, j: number, type: PixelType): void {
-    if (i < 0 || i >= this.size || j < 0 || j >= this.size) {
+    if (this.isOutOfBounds(i, j)) {
       throw new RangeError(
         `Index (${i}, ${j}) is out of bounds for a matrix of size ${this.size}.`,
       );
     }
-    this.types[i + j * this.size] = type;
+    this.matrix[i]![j] = type;
   }
 
   /**
-   * Crée une copie de la matrice QR.
+   * Checks if the given indices are out of bounds.
    */
-  copy(): QrCodeMatrix {
-    const matrixCopy = new QrCodeMatrix(this.size);
-    matrixCopy.types = [...this.types];
-    return matrixCopy;
+  isOutOfBounds(i: number, j: number): boolean {
+    return i < 0 || i >= this.size || j < 0 || j >= this.size;
+  }
+
+  /**
+   * Converts a byte matrix (base QrCode) into a QrCodeMatrix with pixel types.
+   * Ensures that the input matrix is square.
+   */
+  static fromQrMatrix(byteMatrix: QrCode): QrCodeMatrix {
+    const { size } = byteMatrix;
+    const qrMatrix = new QrCodeMatrix(size);
+
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const value = byteMatrix.getModule(i, j);
+        qrMatrix.set(i, j, value ? PixelType.DarkPixel : PixelType.LightPixel);
+      }
+    }
+    return qrMatrix;
   }
 }
 
 /**
- * Fonction qui renvoie les voisins d'une cellule dans la matrice.
+ * Retrieves the neighbors of a pixel in the QR code matrix based on the pixel type.
  */
 export function getNeighbors(
   matrix: QrCodeMatrix,
   i: number,
   j: number,
 ): Neighbors {
-  function cmp(i2: number, j2: number): boolean {
-    try {
-      return matrix.get(i2, j2) === matrix.get(i, j);
-    } catch {
-      return false;
-    }
-  }
+  const cmp = (i2: number, j2: number): boolean => {
+    return (
+      !matrix.isOutOfBounds(i2, j2) && matrix.get(i2, j2) === matrix.get(i, j)
+    );
+  };
 
   return new Neighbors(
     cmp(i, j - 1), // top
@@ -93,59 +98,4 @@ export function getNeighbors(
     cmp(i - 1, j + 1), // bottomLeft
     cmp(i - 1, j - 1), // topLeft
   );
-}
-
-export function getReverseNeighbors(
-  matrix: QrCodeMatrix,
-  i: number,
-  j: number,
-): Neighbors {
-  function cmp(i2: number, j2: number): boolean {
-    try {
-      return matrix.get(i2, j2) !== matrix.get(i, j);
-    } catch {
-      return false;
-    }
-  }
-
-  return new Neighbors(
-    cmp(i, j - 1), // top
-    cmp(i + 1, j), // right
-    cmp(i, j + 1), // bottom
-    cmp(i - 1, j), // left
-    cmp(i + 1, j - 1), // topRight
-    cmp(i + 1, j + 1), // bottomRight
-    cmp(i - 1, j + 1), // bottomLeft
-    cmp(i - 1, j - 1), // topLeft
-  );
-}
-
-/**
- * Convertit une ByteMatrix en QrCodeMatrix.
- * @param byteMatrix La matrice de bytes à convertir
- * @returns Une instance de QrCodeMatrix
- * @throws Si la matrice n'est pas carrée
- */
-export function toQrMatrix(byteMatrix: QrCode): QrCodeMatrix {
-  const width = byteMatrix.size;
-  const height = byteMatrix.size;
-
-  if (width !== height) {
-    throw new Error("Non-square QR byte matrix");
-  }
-
-  const qrMatrix = new QrCodeMatrix(width);
-
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      const value = byteMatrix.getModule(i, j);
-      qrMatrix.set(
-        i,
-        j,
-        value === true ? PixelType.DarkPixel : PixelType.LightPixel,
-      );
-    }
-  }
-
-  return qrMatrix;
 }

@@ -1,4 +1,7 @@
-import { createSvgGroupFromElements } from "../../utils/utils";
+import {
+  createSvgGroupFromElements,
+  getDefsElement,
+} from "../../utils/SvgUtils";
 import { QrColor, type IQrColor } from "../QrColor";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
 import type { IQrSVGWithImage } from "../SVGInterfaces";
@@ -127,7 +130,7 @@ class SquareShape extends BaseLogoShape {
       const clipPathId = `clipSquare${Math.random().toString(36).substr(2, 9)}`;
 
       // Création du clipPath carré
-      const defs = document.createElementNS(SVG_NS, "defs");
+      const defs = getDefsElement(mainSvg);
       const clipPath = document.createElementNS(SVG_NS, "clipPath");
       clipPath.setAttribute("id", clipPathId);
 
@@ -189,7 +192,7 @@ class CircleShape extends BaseLogoShape {
       const clipPathId = `clipCircle${Math.random().toString(36).substr(2, 9)}`;
 
       // Création du clipPath circulaire
-      const defs = document.createElementNS(SVG_NS, "defs");
+      const defs = getDefsElement(mainSvg);
       const clipPath = document.createElementNS(SVG_NS, "clipPath");
       clipPath.setAttribute("id", clipPathId);
 
@@ -281,7 +284,7 @@ class RoundCornersShape extends BaseLogoShape {
       const clipPathId = `clipRoundRect${Math.random().toString(36).substr(2, 9)}`;
 
       // Création du clipPath à coins arrondis
-      const defs = document.createElementNS(SVG_NS, "defs");
+      const defs = getDefsElement(mainSvg);
       const clipPath = document.createElementNS(SVG_NS, "clipPath");
       clipPath.setAttribute("id", clipPathId);
 
@@ -352,7 +355,7 @@ class RhombusShape extends BaseLogoShape {
       const clipPathId = `clipRhombus${Math.random().toString(36).substr(2, 9)}`;
 
       // Création du clipPath losange
-      const defs = document.createElementNS(SVG_NS, "defs");
+      const defs = getDefsElement(mainSvg);
       const clipPath = document.createElementNS(SVG_NS, "clipPath");
       clipPath.setAttribute("id", clipPathId);
 

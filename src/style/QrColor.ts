@@ -1,4 +1,4 @@
-import { getDefsElement } from "../utils/utils";
+import { getDefsElement } from "../utils/SvgUtils";
 
 /**
  * Interface représentant une couleur vectorielle QR pour SVG.

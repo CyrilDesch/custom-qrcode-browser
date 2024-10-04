@@ -1,8 +1,8 @@
 import type { QrCodeMatrix } from "../encoder/QrCodeMatrix";
-import type { QrOptions } from "../options/QrOptions";
-import { createSvgGroupFromElements } from "../utils/utils";
+import { type QrOptions } from "../options/QrOptions";
+import { createSvgGroupFromElements } from "../utils/SvgUtils";
 import { eyeFrameSize } from "./shapes/QrEyeFrameShape";
-import { QrShape } from "./shapes/QrShape";
+import { computeViewBoxIncrease } from "./SVGInterfaces";
 
 export class QrShapesDesigner {
   usedCoordinates: Set<string>;
@@ -132,14 +132,12 @@ export class QrShapesDesigner {
     }
 
     // Draw the QR code matrix
-    const darkMatrixSvg = this.shapes.matrix.createSvgElement(0, 0, this);
+    const darkMatrixSvg = this.shapes.matrixPixel.createSvgElement(0, 0, this);
     qrGroupedElements.push(darkMatrixSvg);
 
     const g = createSvgGroupFromElements(qrGroupedElements);
-    const fixPadding =
-      this.options.shapes.qrCode instanceof QrShape.Circle ? 0.45 : 0;
     const padding =
-      (this.options.sizeRatio * this.qrMatrix.size) / 2 - fixPadding; // const to fix strange centering;
+      computeViewBoxIncrease(this.qrMatrix.size, this.options.sizeRatio) / 2;
     g.setAttribute("transform", `translate(${padding}, ${padding})`);
     this.mainSvg.appendChild(g);
   }

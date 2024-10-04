@@ -3,7 +3,7 @@ import type { IQrSVGShape } from "../SVGInterfaces";
 import {
   createSvgGroupFromElements,
   createSvgPathFromString,
-} from "../../utils/utils";
+} from "../../utils/SvgUtils";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
 import { getNeighbors } from "../../encoder/QrCodeMatrix";
 import { QrColor, type IQrColor } from "../QrColor";

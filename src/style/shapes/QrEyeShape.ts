@@ -1,4 +1,4 @@
-import { SVG_NS } from "../../utils/utils";
+import { SVG_NS } from "../../utils/SvgUtils";
 import { QrColor, type IQrColor } from "../QrColor";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
 import type { IQrSVGShape } from "../SVGInterfaces";

@@ -1,19 +1,8 @@
-export function pairCombinations(array: Int32Array): Array<[number, number]> {
-  const result: Array<[number, number]> = [];
-
-  for (let i = 0; i < array.length; i++) {
-    for (let j = 0; j < array.length; j++) {
-      result.push([array[i] as number, array[j] as number]);
-    }
-  }
-
-  return result;
-}
-
 export const SVG_NS = "http://www.w3.org/2000/svg";
 
 /**
- * Crée un élément `<path>` SVG à partir d'une chaîne de caractères de données de chemin.
+ * Takes a string representing the SVG path data
+ * and creates an SVG `<path>` element with the provided data.
  */
 export function createSvgPathFromString(pathData: string): SVGPathElement {
   const pathElement = document.createElementNS(SVG_NS, "path");
@@ -21,6 +10,10 @@ export function createSvgPathFromString(pathData: string): SVGPathElement {
   return pathElement;
 }
 
+/**
+ * Takes an array of SVG elements and creates an SVG `<g>` (group) element.
+ * All provided elements are appended as children of the group element.
+ */
 export function createSvgGroupFromElements(
   elements: SVGElement[],
 ): SVGGElement {
@@ -31,6 +24,10 @@ export function createSvgGroupFromElements(
   return groupElement;
 }
 
+/**
+ * Retrieves the `<defs>` element from the provided SVG element.
+ * If no `<defs>` element exists, it creates one and inserts it as the first child of the SVG.
+ */
 export function getDefsElement(mainSvg: SVGElement): SVGDefsElement {
   let defs = mainSvg.querySelector("defs");
   if (defs === null) {
@@ -39,7 +36,3 @@ export function getDefsElement(mainSvg: SVGElement): SVGDefsElement {
   }
   return defs;
 }
-
-export type FirstConstructorParam<
-  T extends abstract new (...args: unknown[]) => unknown,
-> = ConstructorParameters<T>[0];

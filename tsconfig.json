@@ -1,40 +1,7 @@
 {
+  "extends": "./tsconfig.bundle.json",
   "compilerOptions": {
-    // Module settings.
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "target": "ES2021",
-    "module": "es2020",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-
-    // Strictness and quality settings.
-    "alwaysStrict": true,
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "removeComments": true,
-
-    // Type-checking settings.
-    "lib": ["es2020", "dom"],
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-
-    "declaration": true,
-    "declarationMap": false,
-    "declarationDir": "./lib/types",
-
-    // Output settings.
-    "newLine": "LF",
-    "sourceMap": true
+    "jsx": "react-jsx"
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
+  "include": ["./src/**/*.ts", "./test-react/**/*.ts", "./test-react/**/*.tsx"]
 }

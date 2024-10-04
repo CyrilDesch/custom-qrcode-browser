@@ -37,14 +37,12 @@ export class Square implements IQrShape {
  * Forme circulaire pour le QR code.
  */
 export class Circle implements IQrShape {
-  padding: number;
   seed: number;
   private random: Random; // Générateur aléatoire basé sur le seed
   private addedPoints: Set<string>; // Utilisé pour stocker les points ajoutés
   public qrOriginStart: [number, number];
 
-  constructor(padding: number = 1.1, seed: number = 233) {
-    this.padding = Math.max(1, Math.min(2, padding)); // Assure que le padding est entre 1 et 2
+  constructor(seed: number = 233) {
     this.seed = seed;
     this.random = new Random(seed);
     this.addedPoints = new Set<string>(); // Utilisé pour stocker les points générés aléatoirement
@@ -55,9 +53,7 @@ export class Circle implements IQrShape {
    * Applique la forme circulaire à la matrice de QR code et ajoute des points aléatoires autour.
    */
   apply(matrix: QrCodeMatrix): QrCodeMatrix {
-    const added = Math.round(
-      (matrix.size * this.padding * Math.sqrt(2) - matrix.size) / 2,
-    );
+    const added = Math.round((matrix.size * Math.sqrt(2) - matrix.size) / 2);
     const newSize = matrix.size + 2 * added;
     const newMatrix = new QrCodeMatrix(newSize);
     const center = newSize / 2;
@@ -72,7 +68,8 @@ export class Circle implements IQrShape {
             i >= added + matrix.size ||
             j >= added + matrix.size) &&
           Math.sqrt(
-            (center - i) * (center - i) + (center - j) * (center - j),
+            (center - i) * (center - i - 0.5) +
+              (center - j) * (center - 0.5 - j), // -0.5 to better fit the circle
           ) <= center &&
           !this.isAdjacentToEyeFrame(
             i,
@@ -104,6 +101,7 @@ export class Circle implements IQrShape {
         newMatrix.set(added + i, added + j, matrix.get(i, j));
       }
     }
+
     return newMatrix;
   }
 

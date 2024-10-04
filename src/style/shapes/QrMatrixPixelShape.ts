@@ -1,5 +1,5 @@
 import { getNeighbors, PixelType } from "../../encoder/QrCodeMatrix";
-import { createSvgPathFromString } from "../../utils/utils";
+import { createSvgPathFromString } from "../../utils/SvgUtils";
 import type { IQrPixelShape } from "./QrPixelShape";
 import type { IQrSVGShape } from "../SVGInterfaces";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
@@ -8,9 +8,9 @@ import { QrColor, type IQrColor } from "../QrColor";
 /**
  * Interface pour définir la forme de la eyee interne du QR code.
  */
-export interface IQrMatrixShape extends IQrSVGShape {}
+export interface IQrMatrixPixelShape extends IQrSVGShape {}
 
-export class QrMatrixShape implements IQrMatrixShape {
+export class QrMatrixPixelShape implements IQrMatrixPixelShape {
   constructor(
     public pixelShape: IQrPixelShape,
     public color: IQrColor = new QrColor.Solid("black"),

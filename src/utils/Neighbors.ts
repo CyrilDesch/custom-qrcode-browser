@@ -39,37 +39,4 @@ export class Neighbors {
     }
     return this.emptyInstance;
   }
-
-  // Vérifie si n'importe quel voisin est présent
-  get hasAny(): boolean {
-    return (
-      this.topLeft ||
-      this.topRight ||
-      this.left ||
-      this.top ||
-      this.right ||
-      this.bottomLeft ||
-      this.bottom ||
-      this.bottomRight
-    );
-  }
-
-  // Vérifie si tous les voisins adjacents (haut, bas, gauche, droite) sont présents
-  get hasAllNearest(): boolean {
-    return this.top && this.bottom && this.left && this.right;
-  }
-
-  // Vérifie si tous les voisins (adjacents et diagonaux) sont présents
-  get hasAll(): boolean {
-    return (
-      this.topLeft &&
-      this.topRight &&
-      this.left &&
-      this.top &&
-      this.right &&
-      this.bottomLeft &&
-      this.bottom &&
-      this.bottomRight
-    );
-  }
 }

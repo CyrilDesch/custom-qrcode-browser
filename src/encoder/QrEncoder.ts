@@ -28,7 +28,7 @@ export class QrCode {
   // Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
   // QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
   // ecl argument if it can be done without increasing the version.
-  public static encodeText(text: string, ecl: Ecc): QrCode {
+  public static encodeText(text: string, ecl: QrErrorCorrectionLevel): QrCode {
     const segs: Array<QrSegment> = QrSegment.makeSegments(text);
     return QrCode.encodeSegments(segs, ecl);
   }
@@ -37,7 +37,10 @@ export class QrCode {
   // This function always encodes using the binary segment mode, not any text mode. The maximum number of
   // bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
   // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
-  public static encodeBinary(data: Readonly<Array<byte>>, ecl: Ecc): QrCode {
+  public static encodeBinary(
+    data: Readonly<Array<byte>>,
+    ecl: QrErrorCorrectionLevel,
+  ): QrCode {
     const seg: QrSegment = QrSegment.makeBytes(data);
     return QrCode.encodeSegments([seg], ecl);
   }
@@ -55,7 +58,7 @@ export class QrCode {
   // This is a mid-level API; the high-level API is encodeText() and encodeBinary().
   public static encodeSegments(
     segs: Readonly<Array<QrSegment>>,
-    ecl: Ecc,
+    ecl: QrErrorCorrectionLevel,
     minVersion: int = 1,
     maxVersion: int = 40,
     mask: int = -1,
@@ -89,7 +92,11 @@ export class QrCode {
     }
 
     // Increase the error correction level while the data still fits in the current version number
-    for (const newEcl of [Ecc.MEDIUM, Ecc.QUARTILE, Ecc.HIGH]) {
+    for (const newEcl of [
+      QrErrorCorrectionLevel.MEDIUM,
+      QrErrorCorrectionLevel.QUARTILE,
+      QrErrorCorrectionLevel.HIGH,
+    ]) {
       // From low to high
       if (
         boostEcl &&
@@ -165,7 +172,7 @@ export class QrCode {
     public readonly version: int,
 
     // The error correction level used in this QR Code.
-    public readonly errorCorrectionLevel: Ecc,
+    public readonly errorCorrectionLevel: QrErrorCorrectionLevel,
 
     dataCodewords: Readonly<Array<byte>>,
 
@@ -353,7 +360,7 @@ export class QrCode {
   // codewords appended to it, based on this object's version and error correction level.
   private addEccAndInterleave(data: Readonly<Array<byte>>): Array<byte> {
     const ver: int = this.version;
-    const ecl: Ecc = this.errorCorrectionLevel;
+    const ecl: QrErrorCorrectionLevel = this.errorCorrectionLevel;
     if (data.length != QrCode.getNumDataCodewords(ver, ecl))
       throw new RangeError("Invalid argument");
 
@@ -582,7 +589,10 @@ export class QrCode {
   // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
   // QR Code of the given version number and error correction level, with remainder bits discarded.
   // This stateless pure function could be implemented as a (40*4)-cell lookup table.
-  private static getNumDataCodewords(ver: int, ecl: Ecc): int {
+  private static getNumDataCodewords(
+    ver: int,
+    ecl: QrErrorCorrectionLevel,
+  ): int {
     return (
       Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
       QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal]![ver]! *
@@ -952,13 +962,19 @@ export class QrSegment {
 /*
  * The error correction level in a QR Code symbol. Immutable.
  */
-export class Ecc {
+
+export type QrErrorCorrectionLevelConfig =
+  | "LOW"
+  | "MEDIUM"
+  | "QUARTILE"
+  | "HIGH";
+export class QrErrorCorrectionLevel {
   /*-- Constants --*/
 
-  public static readonly LOW = new Ecc(0, 1); // The QR Code can tolerate about  7% erroneous codewords
-  public static readonly MEDIUM = new Ecc(1, 0); // The QR Code can tolerate about 15% erroneous codewords
-  public static readonly QUARTILE = new Ecc(2, 3); // The QR Code can tolerate about 25% erroneous codewords
-  public static readonly HIGH = new Ecc(3, 2); // The QR Code can tolerate about 30% erroneous codewords
+  public static readonly LOW = new QrErrorCorrectionLevel(0, 1); // The QR Code can tolerate about  7% erroneous codewords
+  public static readonly MEDIUM = new QrErrorCorrectionLevel(1, 0); // The QR Code can tolerate about 15% erroneous codewords
+  public static readonly QUARTILE = new QrErrorCorrectionLevel(2, 3); // The QR Code can tolerate about 25% erroneous codewords
+  public static readonly HIGH = new QrErrorCorrectionLevel(3, 2); // The QR Code can tolerate about 30% erroneous codewords
 
   /*-- Constructor and fields --*/
 
@@ -968,6 +984,21 @@ export class Ecc {
     // (Package-private) In the range 0 to 3 (unsigned 2-bit integer).
     public readonly formatBits: int,
   ) {}
+
+  public static fromString(
+    level: QrErrorCorrectionLevelConfig,
+  ): QrErrorCorrectionLevel {
+    switch (level) {
+      case "LOW":
+        return QrErrorCorrectionLevel.LOW;
+      case "MEDIUM":
+        return QrErrorCorrectionLevel.MEDIUM;
+      case "QUARTILE":
+        return QrErrorCorrectionLevel.QUARTILE;
+      case "HIGH":
+        return QrErrorCorrectionLevel.HIGH;
+    }
+  }
 }
 
 /*

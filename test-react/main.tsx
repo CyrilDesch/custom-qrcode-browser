@@ -1,20 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  QrOptionsBuilder,
-  QrColor,
-  QrErrorCorrectionLevel,
-  QrEyeFrameShape,
-  QrEyeShape,
-  QrLogoShape,
-  QrMatrixShape,
-  QrPixelShape,
-  QrShape,
-  QrShapes,
-  QrData,
-} from "../src";
+import { QrData, QrOptions } from "../src";
 import QrCode from "./QrCode";
-import { QrAlignmentPatternShape } from "../src/style/shapes/QrAlignmentPattern";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
@@ -33,31 +20,82 @@ const App = () => {
     const data = new QrData.Url(
       "https://www.starbucks.ca/account/create/register",
     );
-    const options = new QrOptionsBuilder()
-      .setErrorCorrectionLevel(QrErrorCorrectionLevel.High)
-      .setSizeRatio(1)
-      .setShapes(
-        new QrShapes(
-          new QrMatrixShape(
-            new QrPixelShape.RoundCorners(0.8, 0.4),
-            new QrColor.Solid("#010001"),
-          ),
-          new QrEyeShape.Square(0.2, undefined, new QrColor.Solid("#017049")),
-          new QrEyeFrameShape.Square(
-            new QrPixelShape.NeighborAware(1, 0.25),
-            new QrColor.Solid("#017049"),
-          ),
-          null,
-          new QrLogoShape.Circle(svg, 0.5, 1.5, new QrColor.Solid("white")),
-          null,
-          new QrShape.Square(),
-          new QrAlignmentPatternShape.Square(
-            new QrPixelShape.NeighborAware(1, 0.3),
-            new QrColor.Solid("#017049"),
-          ),
-        ),
-      )
-      .build();
+    const options = new QrOptions({
+      sizeRatio: 1,
+      errorCorrectionLevel: "HIGH",
+      shapes: {
+        qrCode: {
+          type: "Square",
+        },
+        matrixPixel: {
+          shape: {
+            type: "Circle",
+            sizeRatio: 0.9,
+          },
+          color: {
+            type: "Solid",
+            value: "black",
+          },
+        },
+        eye: {
+          type: "Square",
+          cornerRadius: 0.2,
+          color: {
+            type: "Solid",
+            value: "green",
+          },
+        },
+        eyeFrame: {
+          type: "Square",
+          shape: {
+            type: "NeighborAware",
+            cornerRadius: 0.2,
+          },
+          color: {
+            type: "Solid",
+            value: "green",
+          },
+        },
+        logo: {
+          type: "RoundCorners",
+          imageData: svg,
+          sizeRatio: 0.4,
+          padding: 1,
+          color: {
+            type: "Solid",
+            value: "white",
+          },
+        },
+        timingLine: {
+          pixelShape: {
+            type: "Circle",
+            sizeRatio: 0.6,
+          },
+          color: {
+            type: "Solid",
+            value: "green",
+          },
+        },
+        background: {
+          color: {
+            type: "Solid",
+            value: "white",
+          },
+        },
+        alignmentPattern: {
+          type: "Square",
+          shape: {
+            type: "NeighborAware",
+            cornerRadius: 0.2,
+          },
+          color: {
+            type: "Solid",
+            value: "green",
+          },
+        },
+      },
+    });
+
     return [data, options];
   }, [svg]);
 

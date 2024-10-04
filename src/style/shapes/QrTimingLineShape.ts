@@ -1,5 +1,5 @@
 import { getNeighbors, PixelType } from "../../encoder/QrCodeMatrix";
-import { createSvgPathFromString } from "../../utils/utils";
+import { createSvgPathFromString } from "../../utils/SvgUtils";
 import type { IQrPixelShape } from "./QrPixelShape";
 import type { IQrSVGShape } from "../SVGInterfaces";
 import type { QrShapesDesigner } from "../QrShapesDesigner";

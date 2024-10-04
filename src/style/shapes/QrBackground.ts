@@ -1,4 +1,4 @@
-import { getDefsElement, SVG_NS } from "../../utils/utils";
+import { getDefsElement, SVG_NS } from "../../utils/SvgUtils";
 import { QrColor, type IQrColor } from "../QrColor";
 import type { IQrSVGWithImage } from "../SVGInterfaces";
 

@@ -38,7 +38,7 @@ export default {
   plugins: [
     terser(),
     typescript({
-      tsconfig: `./tsconfig.json`,
+      tsconfig: `./tsconfig.bundle.json`,
       useTsconfigDeclarationDir: true,
       sourceMap: true,
     }),
