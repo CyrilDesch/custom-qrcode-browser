@@ -3,18 +3,17 @@
 [![Continuous Integrations](https://github.com/CyrilDesch/custom-qrcode-browser/actions/workflows/continuous-integrations.yaml/badge.svg?branch=main)](https://github.com/CyrilDesch/custom-qrcode-browser/actions/workflows/continuous-integrations.yaml)
 [![License](https://badgen.net/github/license/CyrilDesch/custom-qrcode-browser?cache=600)](./LICENSE)
 [![Package tree-shaking](https://badgen.net/bundlephobia/tree-shaking/custom-qrcode-browser?cache=600)](https://bundlephobia.com/package/custom-qrcode-browser)
-[![Package minified & gzipped size](https://badgen.net/bundlephobia/minzip/custom-qrcode-browser?cache=600)](https://bundlephobia.com/package/custom-qrcode-browser)
 [![Package dependency count](https://badgen.net/bundlephobia/dependency-count/custom-qrcode-browser?cache=600)](https://bundlephobia.com/package/custom-qrcode-browser)
 ![npm](https://img.shields.io/npm/dm/custom-qrcode-browser?label=Downloads&color=blue&style=flat)
-![stars](https://badgen.net/github/stars/CyrilDesch/custom-qrcode-browser)
+![stars](https://badgen.net/github/stars/CyrilDesch/custom-qrcode-browser?cache=600)
 
-Very lightweight library to generate highly customizable QR codes in browser environments. This library uses **HTML5** and **SVG** for rendering QR codes. Documented for **Angular** and **React**.
+Very lightweight library to generate highly customizable QR codes in browser environments. This library uses **HTML5** and **SVG** for rendering QR codes. Documented for **Angular** and **React**. No dependencies and 40 kB after minification.
 
 <table>
   <tr>
-    <td><img src="./examples/tiktok.jpg" width="256" height="256"></td>
-    <td><img src="./examples/starbucks.jpg" width="256" height="256"></td>
-    <td><img src="./examples/telegram.jpg" width="256" height="256"></td>
+    <td><img src="https://i.ibb.co/HYTh7CP/starbucks.jpg" width="256" height="256"></td>
+    <td><img src="https://i.ibb.co/txBXCqV/telegram.jpg" width="256" height="256"></td>
+    <td><img src="https://i.ibb.co/DzNxPbM/tiktok.jpg" width="256" height="256"></td>
   </tr>
 </table>
 
