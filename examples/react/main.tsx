@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { QrData, QrOptions } from "../../src";
+import { type QrOptionsConfig } from "../../src";
 import QrCode from "./QrCode";
+import type { QrDataConfig } from "../../src/encode/QrDataMapper";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
@@ -17,10 +18,13 @@ const App = () => {
   }, []);
 
   const [data, options] = useMemo(() => {
-    const data = new QrData.Url(
-      "https://www.starbucks.ca/account/create/register",
-    );
-    const options = new QrOptions({
+    const data: QrDataConfig = {
+      type: "Text",
+      data: {
+        value: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      },
+    };
+    const options: QrOptionsConfig = {
       sizeRatio: 1,
       errorCorrectionLevel: "HIGH",
       shapes: {
@@ -28,7 +32,7 @@ const App = () => {
           type: "Square",
         },
         matrixPixel: {
-          shape: {
+          pixelShape: {
             type: "Circle",
             sizeRatio: 0.9,
           },
@@ -47,7 +51,7 @@ const App = () => {
         },
         eyeFrame: {
           type: "Square",
-          shape: {
+          pixelShape: {
             type: "StickyCorners",
             cornerRadius: 0.2,
           },
@@ -58,7 +62,7 @@ const App = () => {
         },
         logo: {
           type: "RoundCorners",
-          imageData: svg,
+          image: svg,
           sizeRatio: 0.4,
           padding: 1,
           color: {
@@ -74,7 +78,7 @@ const App = () => {
         },
         alignmentPattern: {
           type: "Square",
-          shape: {
+          pixelShape: {
             type: "StickyCorners",
             cornerRadius: 0.2,
           },
@@ -84,22 +88,16 @@ const App = () => {
           },
         },
       },
-    });
+    };
 
     return [data, options];
   }, [svg]);
 
   return (
     <div>
-      <p>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
-          Do you like rick ?
-        </a>
-      </p>
-      <div style={{ display: "flex", flexDirection: "row", gap: 10 }}>
-        <div style={{ width: 300 }}>
-          <QrCode data={data} options={options} />
-        </div>
+      <h1>Do you like rick ?</h1>
+      <div style={{ width: 300 }}>
+        <QrCode data={data} options={options} />
       </div>
     </div>
   );

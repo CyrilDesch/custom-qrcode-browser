@@ -1,17 +1,25 @@
 import { QrCodeMatrix } from "../encode/QrCodeMatrix";
-import { QrOptions } from "../options/QrOptions";
+import { QrOptions, type QrOptionsConfig } from "../options/QrOptions";
 import { QrShapesDesigner } from "../style/QrShapesDesigner";
 import { QrCodedText } from "../encode/QrCodedText";
 import type { IQrData } from "../encode/QrData";
 import { computeViewBoxIncrease } from "../utils/SvgUtils";
+import {
+  createQrDataFromConfig,
+  type QrDataConfig,
+} from "../encode/QrDataMapper";
 
 // Client function to create a custom QR code in SVG format
 export function QrCodeGenerator(
   svgElement: SVGSVGElement,
-  data: IQrData,
-  options: QrOptions = new QrOptions({}),
+  data: QrDataConfig,
+  options: QrOptionsConfig = {},
 ): QrCodeGeneratorImpl {
-  return new QrCodeGeneratorImpl(svgElement, data, options);
+  return new QrCodeGeneratorImpl(
+    svgElement,
+    createQrDataFromConfig(data),
+    new QrOptions(options),
+  );
 }
 
 // Class that handles the QR code generation process in SVG format

@@ -1,9 +1,38 @@
 {
   "name": "custom-qrcode-browser",
-  "version": "0.0.6",
-  "main": "lib/index.mjs",
-  "module": "lib/index.mjs",
-  "types": "lib/types/index.d.ts",
+  "version": "0.0.8",
+  "main": "index.mjs",
+  "module": "index.mjs",
+  "types": "types/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "bugs": {
+    "url": "https://github.com/CyrilDesch/custom-qrcode-browser/issues"
+  },
+  "homepage": "https://github.com/CyrilDesch/custom-qrcode-browser",
+  "author": {
+    "name": "Cyril Deschamps (https://cyrildeschamps.fr)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CyrilDesch/custom-qrcode-browser.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "vite dev",
+    "lint": "eslint \"*/**/*.{ts,js,json}\"",
+    "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
+    "prebuild": "rm -rf lib",
+    "build": "rollup --config ./rollup.config.mjs",
+    "packpublish": "npm publish --tag latest",
+    "packpublish:beta": "npm publish --tag next"
+  },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "@types/react": "^18.3.5",
@@ -22,24 +51,5 @@
     "ts-node": "^10.9.2",
     "typescript": "5.5.4",
     "vite": "^5.4.5"
-  },
-  "scripts": {
-    "start": "vite dev",
-    "lint": "eslint \"*/**/*.{ts,js,json}\"",
-    "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
-    "prebuild": "rm -rf lib",
-    "build": "rollup --config ./rollup.config.mjs",
-    "postbuild": "cp README.md package.json LICENSE lib/",
-    "packpublish": "cd lib && npm publish --tag latest",
-    "packpublish:beta": "cd lib && npm publish --tag next"
-  },
-  "author": {
-    "name": "Cyril Deschamps (https://cyrildeschamps.fr)"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
-  },
-  "license": "MIT",
-  "type": "module"
+  }
 }

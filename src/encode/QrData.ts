@@ -71,7 +71,7 @@ class Bookmark implements IQrData {
 }
 
 // Enum representing Wi-Fi authentication types
-enum Authentication {
+export enum Authentication {
   WEP = "WEP",
   WPA = "WPA",
   OPEN = "nopass",
@@ -137,7 +137,7 @@ class SMS implements IQrData {
   constructor(
     public phoneNumber: string,
     public subject: string,
-    public isMMS: boolean,
+    public isMMS: boolean = false,
   ) {}
 
   encode(): string {
@@ -265,7 +265,7 @@ class GooglePlay implements IQrData {
   }
 }
 
-export const QrData = {
+export {
   Text,
   Url,
   Email,

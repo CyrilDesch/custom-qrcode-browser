@@ -1,4 +1,9 @@
-import { GradientOrientation, type IQrColor, QrColor } from "../style/QrColor";
+import {
+  LinearGradientOrientation,
+  type IQrColor,
+  QrColor,
+  type LinearGradientOrientationConfig,
+} from "../style/QrColor";
 import {
   type IQrAlignmentPatternShape,
   QrAlignmentPatternShape,
@@ -51,15 +56,15 @@ export function createQrShapesFromConfig(config: QrShapesConfig): QrShapes {
  */
 export interface QrAlignmentPatternShapeConfig {
   type: "Square" | "Circle";
-  shape: QrPixelShapeConfig;
+  pixelShape: QrPixelShapeConfig;
   color: QrColorConfig;
 }
 
-export function createQrAlignmentPatternShape(
+function createQrAlignmentPatternShape(
   config: QrAlignmentPatternShapeConfig,
 ): IQrAlignmentPatternShape {
   return new QrAlignmentPatternShape.Square(
-    createQrPixelShape(config.shape),
+    createQrPixelShape(config.pixelShape),
     createQrColor(config.color),
   );
 }
@@ -68,38 +73,36 @@ export function createQrAlignmentPatternShape(
  * QR Background configuration.
  */
 export interface QrBackgroundConfig {
-  imageData?: string;
+  image?: string;
   color?: QrColorConfig;
 }
 
-export function createQrBackground(config: QrBackgroundConfig): QrBackground {
+function createQrBackground(config: QrBackgroundConfig): QrBackground {
   const color = config.color ? createQrColor(config.color) : undefined;
-  return new QrBackground(config.imageData, 1, 0, color);
+  return new QrBackground(config.image, 1, 0, color);
 }
 
 /** --------------------------------------------------------------------------
  * QR Color configuration.
  */
-export type QrColorType =
-  | "Solid"
-  | "LinearGradient"
-  | "RadialGradient"
-  | "SweepGradient";
 
 export type QrColorConfig =
   | { type: "Solid"; value: string }
   | {
       type: "LinearGradient";
       colors: Array<[number, string]>;
-      orientation: GradientOrientation;
+      orientation: LinearGradientOrientationConfig;
     }
   | { type: "RadialGradient"; colors: Array<[number, string]>; radius?: number }
   | { type: "SweepGradient"; colors: Array<[number, string]> };
 
-export function createQrColor(config: QrColorConfig): IQrColor {
+function createQrColor(config: QrColorConfig): IQrColor {
   switch (config.type) {
     case "LinearGradient":
-      return new QrColor.LinearGradient(config.colors, config.orientation);
+      return new QrColor.LinearGradient(
+        config.colors,
+        LinearGradientOrientation.fromString(config.orientation),
+      );
     case "RadialGradient":
       return new QrColor.RadialGradient(config.colors, config.radius);
     case "SweepGradient":
@@ -115,20 +118,20 @@ export function createQrColor(config: QrColorConfig): IQrColor {
  */
 export interface QrEyeFrameShapeConfig {
   type: "Square" | "Circle";
-  shape: QrPixelShapeConfig;
+  pixelShape: QrPixelShapeConfig;
   color: QrColorConfig;
 }
 
-export function createQrEyeFrameShape(
+function createQrEyeFrameShape(
   config: QrEyeFrameShapeConfig,
 ): IQrEyeFrameShape {
   return config.type === "Circle"
     ? new QrEyeFrameShape.Circle(
-        createQrPixelShape(config.shape),
+        createQrPixelShape(config.pixelShape),
         createQrColor(config.color),
       )
     : new QrEyeFrameShape.Square(
-        createQrPixelShape(config.shape),
+        createQrPixelShape(config.pixelShape),
         createQrColor(config.color),
       );
 }
@@ -136,15 +139,27 @@ export function createQrEyeFrameShape(
 /** --------------------------------------------------------------------------
  * QR EyeShape configuration.
  */
-export type QrEyeShapeType = "Square" | "Circle" | "Rhombus";
+type QrEyeShapeType = "Square" | "Circle" | "Rhombus";
 
-export interface QrEyeShapeConfig {
+interface QrEyeShapeBaseConfig {
   type: QrEyeShapeType;
-  cornerRadius?: number;
   color: QrColorConfig;
 }
 
-export function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
+interface QrEyeShapeClassicConfig extends QrEyeShapeBaseConfig {
+  type: "Circle" | "Rhombus";
+}
+
+interface QrEyeShapeRoundedConfig extends QrEyeShapeBaseConfig {
+  type: "Square";
+  cornerRadius?: number;
+}
+
+export type QrEyeShapeConfig =
+  | QrEyeShapeClassicConfig
+  | QrEyeShapeRoundedConfig;
+
+function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
   const color = createQrColor(config.color);
   switch (config.type) {
     case "Circle":
@@ -152,7 +167,6 @@ export function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
     case "Rhombus":
       return new QrEyeShape.Rhombus(3, color);
     case "Square":
-    default:
       return new QrEyeShape.Square(config.cornerRadius ?? 0, 3, color);
   }
 }
@@ -162,15 +176,15 @@ export function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
  */
 export interface QrLogoShapeConfig {
   type: "Circle" | "Square" | "Rhombus" | "RoundCorners";
-  imageData: string | null;
+  image: string | null;
   sizeRatio: number;
   padding: number;
   color: QrColorConfig;
 }
 
-export function createQrLogoShape(config: QrLogoShapeConfig): IQrLogoShape {
+function createQrLogoShape(config: QrLogoShapeConfig): IQrLogoShape {
   return new QrLogoShape.Circle(
-    config.imageData,
+    config.image,
     config.sizeRatio,
     config.padding,
     createQrColor(config.color),
@@ -181,15 +195,15 @@ export function createQrLogoShape(config: QrLogoShapeConfig): IQrLogoShape {
  * QR MatrixPixelShape configuration.
  */
 export interface QrMatrixPixelShapeConfig {
-  shape: QrPixelShapeConfig;
+  pixelShape: QrPixelShapeConfig;
   color: QrColorConfig;
 }
 
-export function createQrMatrixPixelShape(
+function createQrMatrixPixelShape(
   config: QrMatrixPixelShapeConfig,
 ): QrMatrixPixelShape {
   return new QrMatrixPixelShape(
-    createQrPixelShape(config.shape),
+    createQrPixelShape(config.pixelShape),
     createQrColor(config.color),
   );
 }
@@ -197,11 +211,17 @@ export function createQrMatrixPixelShape(
 /** --------------------------------------------------------------------------
  * QR PixelShape configuration.
  */
-export type QrPixelShapeType =
+type QrPixelShapeType =
   | "Square"
   | "Circle"
   | "RoundCorners"
-  | "StickyCorners";
+  | "StickyCorners"
+  | "Rhombus"
+  | "Star"
+  | "RoundCornersVertical"
+  | "RoundCornersHorizontal"
+  | "Hexagon"
+  | "Octagon";
 
 // Discriminated union for pixel shapes
 interface QrPixelShapeBase {
@@ -209,32 +229,23 @@ interface QrPixelShapeBase {
   sizeRatio?: number;
 }
 
-interface QrPixelShapeCircle extends QrPixelShapeBase {
-  type: "Circle";
+interface QrPixelShapeBasic extends QrPixelShapeBase {
+  type: "Circle" | "Square" | "Rhombus" | "Star" | "Hexagon" | "Octagon";
 }
 
-interface QrPixelShapeSquare extends QrPixelShapeBase {
-  type: "Square";
-}
-
-interface QrPixelShapeRoundCorners extends QrPixelShapeBase {
-  type: "RoundCorners";
-  cornerRadius: number;
-}
-
-interface QrPixelShapeStickyCorners extends QrPixelShapeBase {
-  type: "StickyCorners";
-  cornerRadius: number;
+interface QrPixelShapeWithRadius extends QrPixelShapeBase {
+  type:
+    | "RoundCorners"
+    | "StickyCorners"
+    | "RoundCornersVertical"
+    | "RoundCornersHorizontal";
+  cornerRadius?: number;
 }
 
 // Union of all pixel shape types
-export type QrPixelShapeConfig =
-  | QrPixelShapeCircle
-  | QrPixelShapeSquare
-  | QrPixelShapeRoundCorners
-  | QrPixelShapeStickyCorners;
+export type QrPixelShapeConfig = QrPixelShapeBasic | QrPixelShapeWithRadius;
 
-export function createQrPixelShape(config: QrPixelShapeConfig): IQrPixelShape {
+function createQrPixelShape(config: QrPixelShapeConfig): IQrPixelShape {
   switch (config.type) {
     case "Circle":
       return new QrPixelShape.Circle(config.sizeRatio);
@@ -249,8 +260,25 @@ export function createQrPixelShape(config: QrPixelShapeConfig): IQrPixelShape {
         config.cornerRadius,
       );
     case "Square":
-    default:
       return new QrPixelShape.Square(config.sizeRatio);
+    case "Rhombus":
+      return new QrPixelShape.Rhombus(config.sizeRatio);
+    case "Star":
+      return new QrPixelShape.Star(config.sizeRatio);
+    case "RoundCornersVertical":
+      return new QrPixelShape.RoundCornersVertical(
+        config.sizeRatio,
+        config.cornerRadius,
+      );
+    case "RoundCornersHorizontal":
+      return new QrPixelShape.RoundCornersHorizontal(
+        config.sizeRatio,
+        config.cornerRadius,
+      );
+    case "Hexagon":
+      return new QrPixelShape.Hexagon(config.sizeRatio);
+    case "Octagon":
+      return new QrPixelShape.Octagon(config.sizeRatio);
   }
 }
 
