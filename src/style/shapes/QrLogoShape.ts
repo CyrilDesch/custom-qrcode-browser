@@ -11,12 +11,13 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 
 abstract class BaseLogoShape implements IQrLogoShape {
   constructor(
-    public imageData: string | null = null, // Peut être une URL ou une chaîne SVG
+    public imageData: string | null = null, // Can be an URL or an SVG string
     public sizeRatio: number = 0.2,
     public padding: number = 1,
     public color: IQrColor = new QrColor.Solid("black"),
   ) {}
 
+  // Adds the logo's coordinates to the designer grid
   protected addLogoCoordinates(
     x: number,
     y: number,
@@ -31,6 +32,7 @@ abstract class BaseLogoShape implements IQrLogoShape {
     }
   }
 
+  // Creates the image element (either SVG or regular image)
   protected createImageElement(
     x: number,
     y: number,
@@ -38,37 +40,24 @@ abstract class BaseLogoShape implements IQrLogoShape {
     height: number,
     clipPathId?: string,
   ): SVGElement {
-    if (!this.imageData) {
-      throw new Error("Image data is not provided.");
-    }
+    if (!this.imageData) throw new Error("Image data is not provided.");
 
-    // Vérifier si l'image est un SVG (en commençant par "<svg")
     const isSvg = this.imageData.includes("<svg");
     if (isSvg) {
-      // Parser le contenu SVG fourni
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(this.imageData, "image/svg+xml");
-      const svgElement = svgDoc.documentElement as unknown as SVGSVGElement;
-
-      // Cloner l'élément SVG pour éviter les problèmes de namespace
-      const importedSvg = document.importNode(svgElement, true) as SVGElement;
+      const importedSvg = document.importNode(svgDoc.documentElement, true);
 
       importedSvg.setAttribute("width", width.toString());
       importedSvg.setAttribute("height", height.toString());
       importedSvg.setAttribute("x", x.toString());
       importedSvg.setAttribute("y", y.toString());
 
-      // Créer un groupe pour appliquer la transformation
       const group = document.createElementNS(SVG_NS, "g");
-
-      if (clipPathId) {
-        group.setAttribute("clip-path", `url(#${clipPathId})`);
-      }
-
+      if (clipPathId) group.setAttribute("clip-path", `url(#${clipPathId})`);
       group.appendChild(importedSvg);
       return group;
     } else {
-      // Traitement standard pour les images non-SVG (URL d'image)
       const img = document.createElementNS(SVG_NS, "image");
       img.setAttributeNS(
         "http://www.w3.org/1999/xlink",
@@ -79,11 +68,7 @@ abstract class BaseLogoShape implements IQrLogoShape {
       img.setAttribute("y", y.toString());
       img.setAttribute("width", width.toString());
       img.setAttribute("height", height.toString());
-
-      if (clipPathId) {
-        img.setAttribute("clip-path", `url(#${clipPathId})`);
-      }
-
+      if (clipPathId) img.setAttribute("clip-path", `url(#${clipPathId})`);
       return img;
     }
   }
@@ -95,19 +80,27 @@ abstract class BaseLogoShape implements IQrLogoShape {
 }
 
 /**
- * Forme carrée pour le logo.
+ * Square or rounded corner logo shape, depending on the cornerRadius.
  */
 class SquareShape extends BaseLogoShape {
+  constructor(
+    imageData: string | null,
+    sizeRatio: number,
+    padding: number,
+    color: IQrColor,
+    public cornerRadius: number = 0, // Set cornerRadius to 0 for a sharp square
+  ) {
+    super(imageData, sizeRatio, padding, color);
+  }
+
   createSvgElement(
     mainSvg: SVGElement,
     designer: QrShapesDesigner,
   ): SVGElement {
-    const width = designer.qrMatrix.size;
-    const height = designer.qrMatrix.size;
-    const logoSize = Math.min(width, height) * this.sizeRatio;
-    const x = (width - logoSize) / 2;
-    const y = (height - logoSize) / 2;
-    const svgElements = [];
+    const logoSize = designer.qrMatrix.size * this.sizeRatio;
+    const x = (designer.qrMatrix.size - logoSize) / 2;
+    const y = (designer.qrMatrix.size - logoSize) / 2;
+    const svgElements: SVGElement[] = [];
 
     this.addLogoCoordinates(
       Math.round(x),
@@ -117,40 +110,28 @@ class SquareShape extends BaseLogoShape {
       designer,
     );
 
-    // Création du fond carré
+    // Create the background with optional rounded corners
     const bgRect = document.createElementNS(SVG_NS, "rect");
     bgRect.setAttribute("x", x.toString());
     bgRect.setAttribute("y", y.toString());
     bgRect.setAttribute("width", logoSize.toString());
     bgRect.setAttribute("height", logoSize.toString());
+    if (this.cornerRadius > 0) {
+      bgRect.setAttribute("rx", this.cornerRadius.toString());
+      bgRect.setAttribute("ry", this.cornerRadius.toString());
+    }
     this.color.applyToElement(bgRect, mainSvg);
     svgElements.push(bgRect);
 
+    // Handle image data inside the shape
     if (this.imageData) {
       const clipPathId = `clipSquare${Math.random().toString(36).substr(2, 9)}`;
-
-      // Création du clipPath carré
-      const defs = getDefsElement(mainSvg);
-      const clipPath = document.createElementNS(SVG_NS, "clipPath");
-      clipPath.setAttribute("id", clipPathId);
-
-      const clipRect = document.createElementNS(SVG_NS, "rect");
-      clipRect.setAttribute("x", (x + this.padding).toString());
-      clipRect.setAttribute("y", (y + this.padding).toString());
-      clipRect.setAttribute("width", (logoSize - 2 * this.padding).toString());
-      clipRect.setAttribute("height", (logoSize - 2 * this.padding).toString());
-
-      clipPath.appendChild(clipRect);
-      defs.appendChild(clipPath);
-      svgElements.push(defs);
+      this.createClipPath(mainSvg, x, y, logoSize, clipPathId);
 
       const imgSize = logoSize - 2 * this.padding;
-      const imgX = x + this.padding;
-      const imgY = y + this.padding;
-
       const img = this.createImageElement(
-        imgX,
-        imgY,
+        x + this.padding,
+        y + this.padding,
         imgSize,
         imgSize,
         clipPathId,
@@ -160,10 +141,35 @@ class SquareShape extends BaseLogoShape {
 
     return createSvgGroupFromElements(svgElements);
   }
+
+  private createClipPath(
+    mainSvg: SVGElement,
+    x: number,
+    y: number,
+    size: number,
+    clipPathId: string,
+  ) {
+    const defs = getDefsElement(mainSvg);
+    const clipPath = document.createElementNS(SVG_NS, "clipPath");
+    clipPath.setAttribute("id", clipPathId);
+
+    const clipRect = document.createElementNS(SVG_NS, "rect");
+    clipRect.setAttribute("x", (x + this.padding).toString());
+    clipRect.setAttribute("y", (y + this.padding).toString());
+    clipRect.setAttribute("width", (size - 2 * this.padding).toString());
+    clipRect.setAttribute("height", (size - 2 * this.padding).toString());
+    if (this.cornerRadius > 0) {
+      clipRect.setAttribute("rx", this.cornerRadius.toString());
+      clipRect.setAttribute("ry", this.cornerRadius.toString());
+    }
+
+    clipPath.appendChild(clipRect);
+    defs.appendChild(clipPath);
+  }
 }
 
 /**
- * Forme circulaire pour le logo.
+ * Circular logo shape.
  */
 class CircleShape extends BaseLogoShape {
   createSvgElement(
@@ -176,11 +182,11 @@ class CircleShape extends BaseLogoShape {
     const cx = width / 2;
     const cy = height / 2;
     const radius = logoSize / 2;
-    const svgElements = [];
+    const svgElements: SVGElement[] = [];
 
     this.addCircleCoordinates(cx - 0.5, cy - 0.5, radius, designer);
 
-    // Création du fond circulaire
+    // Create the circular background
     const bgCircle = document.createElementNS(SVG_NS, "circle");
     bgCircle.setAttribute("cx", cx.toString());
     bgCircle.setAttribute("cy", cy.toString());
@@ -188,30 +194,15 @@ class CircleShape extends BaseLogoShape {
     this.color.applyToElement(bgCircle, mainSvg);
     svgElements.push(bgCircle);
 
+    // Handle image data inside the circle
     if (this.imageData) {
       const clipPathId = `clipCircle${Math.random().toString(36).substr(2, 9)}`;
-
-      // Création du clipPath circulaire
-      const defs = getDefsElement(mainSvg);
-      const clipPath = document.createElementNS(SVG_NS, "clipPath");
-      clipPath.setAttribute("id", clipPathId);
-
-      const clipCircle = document.createElementNS(SVG_NS, "circle");
-      clipCircle.setAttribute("cx", cx.toString());
-      clipCircle.setAttribute("cy", cy.toString());
-      clipCircle.setAttribute("r", (radius - this.padding).toString());
-
-      clipPath.appendChild(clipCircle);
-      defs.appendChild(clipPath);
-      svgElements.push(defs);
+      this.createClipPath(mainSvg, cx, cy, radius, clipPathId);
 
       const imgSize = 2 * (radius - this.padding);
-      const imgX = cx - (radius - this.padding);
-      const imgY = cy - (radius - this.padding);
-
       const img = this.createImageElement(
-        imgX,
-        imgY,
+        cx - (radius - this.padding),
+        cy - (radius - this.padding),
         imgSize,
         imgSize,
         clipPathId,
@@ -220,6 +211,26 @@ class CircleShape extends BaseLogoShape {
     }
 
     return createSvgGroupFromElements(svgElements);
+  }
+
+  private createClipPath(
+    mainSvg: SVGElement,
+    cx: number,
+    cy: number,
+    radius: number,
+    clipPathId: string,
+  ) {
+    const defs = getDefsElement(mainSvg);
+    const clipPath = document.createElementNS(SVG_NS, "clipPath");
+    clipPath.setAttribute("id", clipPathId);
+
+    const clipCircle = document.createElementNS(SVG_NS, "circle");
+    clipCircle.setAttribute("cx", cx.toString());
+    clipCircle.setAttribute("cy", cy.toString());
+    clipCircle.setAttribute("r", (radius - this.padding).toString());
+
+    clipPath.appendChild(clipCircle);
+    defs.appendChild(clipPath);
   }
 
   private addCircleCoordinates(
@@ -235,109 +246,29 @@ class CircleShape extends BaseLogoShape {
 
     for (let x = minX; x < maxX; x++) {
       for (let y = minY; y < maxY; y++) {
-        // Vérifier si le point (x, y) est dans le cercle
         const distance = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-        if (distance <= radius) {
-          designer.addUsedCoordinate(x, y);
-        }
+        if (distance <= radius) designer.addUsedCoordinate(x, y);
       }
     }
   }
 }
 
 /**
- * Forme avec coins arrondis pour le logo.
- */
-class RoundCornersShape extends BaseLogoShape {
-  createSvgElement(
-    mainSvg: SVGElement,
-    designer: QrShapesDesigner,
-  ): SVGElement {
-    const width = designer.qrMatrix.size;
-    const height = designer.qrMatrix.size;
-    const logoSize = Math.min(width, height) * this.sizeRatio;
-    const x = (width - logoSize) / 2;
-    const y = (height - logoSize) / 2;
-    const cornerRadius = logoSize * 0.1;
-    const svgElements = [];
-
-    this.addLogoCoordinates(
-      Math.round(x),
-      Math.round(y),
-      logoSize,
-      logoSize,
-      designer,
-    );
-
-    // Création du fond à coins arrondis
-    const bgRect = document.createElementNS(SVG_NS, "rect");
-    bgRect.setAttribute("x", x.toString());
-    bgRect.setAttribute("y", y.toString());
-    bgRect.setAttribute("width", logoSize.toString());
-    bgRect.setAttribute("height", logoSize.toString());
-    bgRect.setAttribute("rx", cornerRadius.toString());
-    bgRect.setAttribute("ry", cornerRadius.toString());
-    this.color.applyToElement(bgRect, mainSvg);
-    svgElements.push(bgRect);
-
-    if (this.imageData) {
-      const clipPathId = `clipRoundRect${Math.random().toString(36).substr(2, 9)}`;
-
-      // Création du clipPath à coins arrondis
-      const defs = getDefsElement(mainSvg);
-      const clipPath = document.createElementNS(SVG_NS, "clipPath");
-      clipPath.setAttribute("id", clipPathId);
-
-      const clipRect = document.createElementNS(SVG_NS, "rect");
-      clipRect.setAttribute("x", (x + this.padding).toString());
-      clipRect.setAttribute("y", (y + this.padding).toString());
-      clipRect.setAttribute("width", (logoSize - 2 * this.padding).toString());
-      clipRect.setAttribute("height", (logoSize - 2 * this.padding).toString());
-      clipRect.setAttribute("rx", cornerRadius.toString());
-      clipRect.setAttribute("ry", cornerRadius.toString());
-
-      clipPath.appendChild(clipRect);
-      defs.appendChild(clipPath);
-      svgElements.push(defs);
-
-      const imgSize = logoSize - 2 * this.padding;
-      const imgX = x + this.padding;
-      const imgY = y + this.padding;
-
-      const img = this.createImageElement(
-        imgX,
-        imgY,
-        imgSize,
-        imgSize,
-        clipPathId,
-      );
-      svgElements.push(img);
-    }
-
-    return createSvgGroupFromElements(svgElements);
-  }
-}
-
-/**
- * Forme en losange pour le logo.
+ * Rhombus-shaped logo.
  */
 class RhombusShape extends BaseLogoShape {
   createSvgElement(
     mainSvg: SVGElement,
     designer: QrShapesDesigner,
   ): SVGElement {
-    const width = designer.qrMatrix.size;
-    const height = designer.qrMatrix.size;
-    const logoSize = Math.min(width, height) * this.sizeRatio;
-    const cx = width / 2;
-    const cy = height / 2;
+    const logoSize = designer.qrMatrix.size * this.sizeRatio;
+    const cx = designer.qrMatrix.size / 2;
+    const cy = designer.qrMatrix.size / 2;
     const halfSize = logoSize / 2;
-    const svgElements = [];
+    const svgElements: SVGElement[] = [];
 
-    // Ajouter les coordonnées couvertes par le logo losange
     this.addRhombusLogoCoordinates(cx - 0.5, cy - 0.5, halfSize, designer);
 
-    // Points du losange
     const points = [
       `${cx},${cy - halfSize}`,
       `${cx + halfSize},${cy}`,
@@ -345,7 +276,6 @@ class RhombusShape extends BaseLogoShape {
       `${cx - halfSize},${cy}`,
     ].join(" ");
 
-    // Création du fond losange
     const bgPolygon = document.createElementNS(SVG_NS, "polygon");
     bgPolygon.setAttribute("points", points);
     this.color.applyToElement(bgPolygon, mainSvg);
@@ -353,34 +283,12 @@ class RhombusShape extends BaseLogoShape {
 
     if (this.imageData) {
       const clipPathId = `clipRhombus${Math.random().toString(36).substr(2, 9)}`;
+      this.createClipPath(mainSvg, cx, cy, halfSize, clipPathId);
 
-      // Création du clipPath losange
-      const defs = getDefsElement(mainSvg);
-      const clipPath = document.createElementNS(SVG_NS, "clipPath");
-      clipPath.setAttribute("id", clipPathId);
-
-      const paddingHalfSize = halfSize - this.padding;
-      const clipPoints = [
-        `${cx},${cy - paddingHalfSize}`,
-        `${cx + paddingHalfSize},${cy}`,
-        `${cx},${cy + paddingHalfSize}`,
-        `${cx - paddingHalfSize},${cy}`,
-      ].join(" ");
-
-      const clipPolygon = document.createElementNS(SVG_NS, "polygon");
-      clipPolygon.setAttribute("points", clipPoints);
-
-      clipPath.appendChild(clipPolygon);
-      defs.appendChild(clipPath);
-      svgElements.push(defs);
-
-      const imgSize = 2 * paddingHalfSize;
-      const imgX = cx - paddingHalfSize;
-      const imgY = cy - paddingHalfSize;
-
+      const imgSize = 2 * (halfSize - this.padding);
       const img = this.createImageElement(
-        imgX,
-        imgY,
+        cx - (halfSize - this.padding),
+        cy - (halfSize - this.padding),
         imgSize,
         imgSize,
         clipPathId,
@@ -389,6 +297,32 @@ class RhombusShape extends BaseLogoShape {
     }
 
     return createSvgGroupFromElements(svgElements);
+  }
+
+  private createClipPath(
+    mainSvg: SVGElement,
+    cx: number,
+    cy: number,
+    halfSize: number,
+    clipPathId: string,
+  ) {
+    const defs = getDefsElement(mainSvg);
+    const clipPath = document.createElementNS(SVG_NS, "clipPath");
+    clipPath.setAttribute("id", clipPathId);
+
+    const paddingHalfSize = halfSize - this.padding;
+    const clipPoints = [
+      `${cx},${cy - paddingHalfSize}`,
+      `${cx + paddingHalfSize},${cy}`,
+      `${cx},${cy + paddingHalfSize}`,
+      `${cx - paddingHalfSize},${cy}`,
+    ].join(" ");
+
+    const clipPolygon = document.createElementNS(SVG_NS, "polygon");
+    clipPolygon.setAttribute("points", clipPoints);
+
+    clipPath.appendChild(clipPolygon);
+    defs.appendChild(clipPath);
   }
 
   private addRhombusLogoCoordinates(
@@ -402,29 +336,20 @@ class RhombusShape extends BaseLogoShape {
     const minY = Math.floor(cy - halfSize);
     const maxY = Math.ceil(cy + halfSize);
 
-    // Parcours de chaque point dans la zone couverte par le losange
     for (let x = minX; x <= maxX; x++) {
       for (let y = minY; y <= maxY; y++) {
-        // Vérifier si le point est dans le losange en utilisant la formule du losange
         const dx = Math.abs(x - cx) / halfSize;
         const dy = Math.abs(y - cy) / halfSize;
-        if (dx + dy <= 1) {
-          designer.addUsedCoordinate(x, y); // Ajoute les coordonnées utilisées
-        }
+        if (dx + dy <= 1) designer.addUsedCoordinate(x, y);
       }
     }
   }
 }
 
-/**
- * Implémentations disponibles pour QrLogoShape.
- */
 export const QrLogoShape = {
   Square: SquareShape,
   Circle: CircleShape,
-  RoundCorners: RoundCornersShape,
   Rhombus: RhombusShape,
 };
 
-// Exports
 export type { IQrLogoShape };

@@ -36,3 +36,11 @@ export function getDefsElement(mainSvg: SVGElement): SVGDefsElement {
   }
   return defs;
 }
+
+// Increase the viewbox size to reduce the QR code size
+export function computeViewBoxIncrease(
+  codeMatrixSize: number,
+  sizeRatio: number,
+): number {
+  return codeMatrixSize * ((1 - sizeRatio) / sizeRatio);
+}

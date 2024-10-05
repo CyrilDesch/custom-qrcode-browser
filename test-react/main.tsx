@@ -48,7 +48,7 @@ const App = () => {
         eyeFrame: {
           type: "Square",
           shape: {
-            type: "NeighborAware",
+            type: "StickyCorners",
             cornerRadius: 0.2,
           },
           color: {
@@ -85,7 +85,7 @@ const App = () => {
         alignmentPattern: {
           type: "Square",
           shape: {
-            type: "NeighborAware",
+            type: "StickyCorners",
             cornerRadius: 0.2,
           },
           color: {

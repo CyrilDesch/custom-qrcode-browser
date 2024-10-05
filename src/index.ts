@@ -3,7 +3,7 @@ export { QrCodeGenerator } from "./core/QrCodeGenerator";
 export * from "./options/QrShapes";
 export * from "./options/QrOptions";
 
-export * from "./encoder/QrData";
+export * from "./encode/QrData";
 
 export * from "./style/QrColor";
 export * from "./style/QrShapesDesigner";

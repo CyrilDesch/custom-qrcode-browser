@@ -1,9 +1,9 @@
-import { QrCodeMatrix } from "../encoder/QrCodeMatrix";
+import { QrCodeMatrix } from "../encode/QrCodeMatrix";
 import { QrOptions } from "../options/QrOptions";
 import { QrShapesDesigner } from "../style/QrShapesDesigner";
-import { QrCode } from "../encoder/QrEncoder";
-import type { IQrData } from "../encoder/QrData";
-import { computeViewBoxIncrease } from "../style/SVGInterfaces";
+import { QrCodedText } from "../encode/QrCodedText";
+import type { IQrData } from "../encode/QrData";
+import { computeViewBoxIncrease } from "../utils/SvgUtils";
 
 // Client function to create a custom QR code in SVG format
 export function QrCodeGenerator(
@@ -24,7 +24,10 @@ class QrCodeGeneratorImpl {
     private options: QrOptions,
   ) {
     // Generate the base QR code matrix
-    const code = QrCode.encodeText(data.encode(), options.errorCorrectionLevel);
+    const code = QrCodedText.encodeText(
+      data.encode(),
+      options.errorCorrectionLevel,
+    );
     this.codeMatrix = options.shapes.qrCode.apply(
       QrCodeMatrix.fromQrMatrix(code),
     );

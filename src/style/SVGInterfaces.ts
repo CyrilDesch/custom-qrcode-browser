@@ -1,11 +1,12 @@
 import type { QrShapesDesigner } from "./QrShapesDesigner";
 
+/**
+ * Interface for SVG shapes in the QR code.
+ */
+
 export interface IQrSVGShape {
   /**
-   * Crée un SVG Element pour la forme
-   * @param x La position en x du début de la forme
-   * @param y La position en y du début de la forme
-   * @returns Un élément SVG représentant la forme
+   * Create an SVG Element with the shape defined
    */
   createSvgElement(
     x: number,
@@ -20,18 +21,7 @@ export interface IQrSVGWithImage {
   padding: number; // Padding between image and bg color
 
   /**
-   * Crée un SVG Element avec l'image si elle est définie
-   * @param mainSvg L'élément SVG principal
-   * @param color La couleur d'arrière-plan
-   * @returns Un élément SVG représentant la forme
+   * Create an SVG Element with the image defined
    */
   createSvgElement(mainSvg: SVGElement, designer: QrShapesDesigner): SVGElement;
-}
-
-// Increase the viewbox size to reduce the QR code size
-export function computeViewBoxIncrease(
-  codeMatrixSize: number,
-  sizeRatio: number,
-): number {
-  return codeMatrixSize * ((1 - sizeRatio) / sizeRatio);
 }

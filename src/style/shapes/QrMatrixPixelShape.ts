@@ -1,4 +1,5 @@
-import { getNeighbors, PixelType } from "../../encoder/QrCodeMatrix";
+import { PixelType } from "../../encode/QrCodeMatrix";
+import { getNeighbors } from "../../utils/Neighbors";
 import { createSvgPathFromString } from "../../utils/SvgUtils";
 import type { IQrPixelShape } from "./QrPixelShape";
 import type { IQrSVGShape } from "../SVGInterfaces";
@@ -6,7 +7,7 @@ import type { QrShapesDesigner } from "../QrShapesDesigner";
 import { QrColor, type IQrColor } from "../QrColor";
 
 /**
- * Interface pour définir la forme de la eyee interne du QR code.
+ * Interface to define the shape of the QR code matrix pixel.
  */
 export interface IQrMatrixPixelShape extends IQrSVGShape {}
 
@@ -17,10 +18,7 @@ export class QrMatrixPixelShape implements IQrMatrixPixelShape {
   ) {}
 
   /**
-   * Crée un chemin SVG pour les pixels sombres (noirs) du QR code.
-   * @param x Coordonnée de départ en X
-   * @param y Coordonnée de départ en Y
-   * @returns Un élément SVG représentant le chemin pour les pixels sombres
+   * Create an SVG path for the dark pixels of the QR code, except those already used.
    */
   createSvgElement(
     x: number,
@@ -28,26 +26,36 @@ export class QrMatrixPixelShape implements IQrMatrixPixelShape {
     designer: QrShapesDesigner,
   ): SVGElement {
     let pathData = "";
-    for (let i = x; i < designer.qrMatrix.size; i++) {
-      for (let j = y; j < designer.qrMatrix.size; j++) {
-        // Vérifier si le pixel est sombre et non utilisé
-        if (
-          designer.qrMatrix.get(i, j) === PixelType.DarkPixel &&
-          !designer.isUsedCoordinate(i, j)
-        ) {
-          // Ajouter la coordonnée à l'ensemble des coordonnées utilisées
-          designer.addUsedCoordinate(i, j);
+    const matrixSize = designer.qrMatrix.size;
 
-          // Récupérer les voisins du pixel pour ajuster la forme
-          const neighbors = getNeighbors(designer.qrMatrix, i, j);
+    // Loop through the QR matrix and generate SVG path data for dark pixels
+    for (let i = x; i < matrixSize; i++) {
+      for (let j = y; j < matrixSize; j++) {
+        if (this.isDarkPixel(i, j, designer)) {
+          designer.addUsedCoordinate(i, j); // Mark the coordinate as used
 
-          // Créer le chemin pour le pixel avec la forme de pixel choisie
-          pathData += this.pixelShape.createSvgElement(i, j, 1, neighbors);
+          const neighbors = getNeighbors(designer.qrMatrix, i, j); // Get neighboring pixels
+          pathData += this.pixelShape.createSvgElement(i, j, 1, neighbors); // Create path for the pixel
         }
       }
     }
+
     const svg = createSvgPathFromString(pathData);
     this.color.applyToElement(svg, designer.mainSvg);
     return svg;
+  }
+
+  /**
+   * Helper method to check if a pixel is dark and not already used.
+   */
+  private isDarkPixel(
+    i: number,
+    j: number,
+    designer: QrShapesDesigner,
+  ): boolean {
+    return (
+      designer.qrMatrix.get(i, j) === PixelType.DarkPixel &&
+      !designer.isUsedCoordinate(i, j)
+    );
   }
 }

@@ -201,7 +201,7 @@ export type QrPixelShapeType =
   | "Square"
   | "Circle"
   | "RoundCorners"
-  | "NeighborAware";
+  | "StickyCorners";
 
 // Discriminated union for pixel shapes
 interface QrPixelShapeBase {
@@ -222,8 +222,8 @@ interface QrPixelShapeRoundCorners extends QrPixelShapeBase {
   cornerRadius: number;
 }
 
-interface QrPixelShapeNeighborAware extends QrPixelShapeBase {
-  type: "NeighborAware";
+interface QrPixelShapeStickyCorners extends QrPixelShapeBase {
+  type: "StickyCorners";
   cornerRadius: number;
 }
 
@@ -232,7 +232,7 @@ export type QrPixelShapeConfig =
   | QrPixelShapeCircle
   | QrPixelShapeSquare
   | QrPixelShapeRoundCorners
-  | QrPixelShapeNeighborAware;
+  | QrPixelShapeStickyCorners;
 
 export function createQrPixelShape(config: QrPixelShapeConfig): IQrPixelShape {
   switch (config.type) {
@@ -243,8 +243,8 @@ export function createQrPixelShape(config: QrPixelShapeConfig): IQrPixelShape {
         config.sizeRatio,
         config.cornerRadius,
       );
-    case "NeighborAware":
-      return new QrPixelShape.NeighborAware(
+    case "StickyCorners":
+      return new QrPixelShape.StickyCorners(
         config.sizeRatio,
         config.cornerRadius,
       );

@@ -1,9 +1,7 @@
-import { Neighbors } from "../utils/Neighbors";
-import type { QrCode } from "./QrEncoder";
+import type { QrCodedText } from "./QrCodedText";
 
 export enum PixelType {
   DarkPixel = "DarkPixel",
-  LightPixel = "LightPixel",
   Background = "Background",
 }
 
@@ -60,42 +58,16 @@ export class QrCodeMatrix {
    * Converts a byte matrix (base QrCode) into a QrCodeMatrix with pixel types.
    * Ensures that the input matrix is square.
    */
-  static fromQrMatrix(byteMatrix: QrCode): QrCodeMatrix {
+  static fromQrMatrix(byteMatrix: QrCodedText): QrCodeMatrix {
     const { size } = byteMatrix;
     const qrMatrix = new QrCodeMatrix(size);
 
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
         const value = byteMatrix.getModule(i, j);
-        qrMatrix.set(i, j, value ? PixelType.DarkPixel : PixelType.LightPixel);
+        qrMatrix.set(i, j, value ? PixelType.DarkPixel : PixelType.Background);
       }
     }
     return qrMatrix;
   }
-}
-
-/**
- * Retrieves the neighbors of a pixel in the QR code matrix based on the pixel type.
- */
-export function getNeighbors(
-  matrix: QrCodeMatrix,
-  i: number,
-  j: number,
-): Neighbors {
-  const cmp = (i2: number, j2: number): boolean => {
-    return (
-      !matrix.isOutOfBounds(i2, j2) && matrix.get(i2, j2) === matrix.get(i, j)
-    );
-  };
-
-  return new Neighbors(
-    cmp(i, j - 1), // top
-    cmp(i + 1, j), // right
-    cmp(i, j + 1), // bottom
-    cmp(i - 1, j), // left
-    cmp(i + 1, j - 1), // topRight
-    cmp(i + 1, j + 1), // bottomRight
-    cmp(i - 1, j + 1), // bottomLeft
-    cmp(i - 1, j - 1), // topLeft
-  );
 }

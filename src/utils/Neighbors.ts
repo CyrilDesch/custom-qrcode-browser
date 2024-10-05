@@ -1,5 +1,7 @@
+import type { QrCodeMatrix } from "../encode/QrCodeMatrix";
+
 /**
- * Statut des voisins des pixels du QR code.
+ * Neighbors of a pixel in the QR code matrix.
  */
 export class Neighbors {
   topLeft: boolean;
@@ -39,4 +41,30 @@ export class Neighbors {
     }
     return this.emptyInstance;
   }
+}
+
+/**
+ * Retrieves the neighbors of a pixel in the QR code matrix based on the pixel type.
+ */
+export function getNeighbors(
+  matrix: QrCodeMatrix,
+  i: number,
+  j: number,
+): Neighbors {
+  const cmp = (i2: number, j2: number): boolean => {
+    return (
+      !matrix.isOutOfBounds(i2, j2) && matrix.get(i2, j2) === matrix.get(i, j)
+    );
+  };
+
+  return new Neighbors(
+    cmp(i, j - 1), // top
+    cmp(i + 1, j), // right
+    cmp(i, j + 1), // bottom
+    cmp(i - 1, j), // left
+    cmp(i + 1, j - 1), // topRight
+    cmp(i + 1, j + 1), // bottomRight
+    cmp(i - 1, j + 1), // bottomLeft
+    cmp(i - 1, j - 1), // topLeft
+  );
 }

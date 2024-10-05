@@ -265,7 +265,6 @@ class GooglePlay implements IQrData {
   }
 }
 
-// Exporting all QR data types
 export const QrData = {
   Text,
   Url,

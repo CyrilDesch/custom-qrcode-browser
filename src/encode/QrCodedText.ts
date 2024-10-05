@@ -20,7 +20,7 @@ type int = number;
  *   supply the appropriate version number, and call the QrCode() constructor.
  * (Note that all ways require supplying the desired error correction level.)
  */
-export class QrCode {
+export class QrCodedText {
   /*-- Static factory functions (high level) --*/
 
   // Returns a QR Code representing the given Unicode text string at the given error correction level.
@@ -28,21 +28,12 @@ export class QrCode {
   // Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
   // QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
   // ecl argument if it can be done without increasing the version.
-  public static encodeText(text: string, ecl: QrErrorCorrectionLevel): QrCode {
-    const segs: Array<QrSegment> = QrSegment.makeSegments(text);
-    return QrCode.encodeSegments(segs, ecl);
-  }
-
-  // Returns a QR Code representing the given binary data at the given error correction level.
-  // This function always encodes using the binary segment mode, not any text mode. The maximum number of
-  // bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
-  // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
-  public static encodeBinary(
-    data: Readonly<Array<byte>>,
+  public static encodeText(
+    text: string,
     ecl: QrErrorCorrectionLevel,
-  ): QrCode {
-    const seg: QrSegment = QrSegment.makeBytes(data);
-    return QrCode.encodeSegments([seg], ecl);
+  ): QrCodedText {
+    const segs: Array<QrSegment> = QrSegment.makeSegments(text);
+    return QrCodedText.encodeSegments(segs, ecl);
   }
 
   /*-- Static factory functions (mid level) --*/
@@ -63,12 +54,12 @@ export class QrCode {
     maxVersion: int = 40,
     mask: int = -1,
     boostEcl: boolean = true,
-  ): QrCode {
+  ): QrCodedText {
     if (
       !(
-        QrCode.MIN_VERSION <= minVersion &&
+        QrCodedText.MIN_VERSION <= minVersion &&
         minVersion <= maxVersion &&
-        maxVersion <= QrCode.MAX_VERSION
+        maxVersion <= QrCodedText.MAX_VERSION
       ) ||
       mask < -1 ||
       mask > 7
@@ -80,7 +71,7 @@ export class QrCode {
     let dataUsedBits: int;
     for (version = minVersion; ; version++) {
       const dataCapacityBits: int =
-        QrCode.getNumDataCodewords(version, ecl) * 8; // Number of data bits available
+        QrCodedText.getNumDataCodewords(version, ecl) * 8; // Number of data bits available
       const usedBits: number = QrSegment.getTotalBits(segs, version);
       if (usedBits <= dataCapacityBits) {
         dataUsedBits = usedBits;
@@ -100,7 +91,7 @@ export class QrCode {
       // From low to high
       if (
         boostEcl &&
-        dataUsedBits <= QrCode.getNumDataCodewords(version, newEcl) * 8
+        dataUsedBits <= QrCodedText.getNumDataCodewords(version, newEcl) * 8
       )
         ecl = newEcl;
     }
@@ -115,7 +106,8 @@ export class QrCode {
     assert(bb.length == dataUsedBits);
 
     // Add terminator and pad up to a byte if applicable
-    const dataCapacityBits: int = QrCode.getNumDataCodewords(version, ecl) * 8;
+    const dataCapacityBits: int =
+      QrCodedText.getNumDataCodewords(version, ecl) * 8;
     assert(bb.length <= dataCapacityBits);
     appendBits(0, Math.min(4, dataCapacityBits - bb.length), bb);
     appendBits(0, (8 - (bb.length % 8)) % 8, bb);
@@ -139,7 +131,7 @@ export class QrCode {
     );
 
     // Create the QR Code object
-    return new QrCode(version, ecl, dataCodewords, mask);
+    return new QrCodedText(version, ecl, dataCodewords, mask);
   }
 
   /*-- Fields --*/
@@ -179,7 +171,7 @@ export class QrCode {
     msk: int,
   ) {
     // Check scalar arguments
-    if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
+    if (version < QrCodedText.MIN_VERSION || version > QrCodedText.MAX_VERSION)
       throw new RangeError("Version value out of range");
     if (msk < -1 || msk > 7) throw new RangeError("Mask value out of range");
     this.size = version * 4 + 17;
@@ -361,27 +353,34 @@ export class QrCode {
   private addEccAndInterleave(data: Readonly<Array<byte>>): Array<byte> {
     const ver: int = this.version;
     const ecl: QrErrorCorrectionLevel = this.errorCorrectionLevel;
-    if (data.length != QrCode.getNumDataCodewords(ver, ecl))
+    if (data.length != QrCodedText.getNumDataCodewords(ver, ecl))
       throw new RangeError("Invalid argument");
 
     // Calculate parameter numbers
     const numBlocks: int =
-      QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal]![ver]!;
-    const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal]![ver]!;
-    const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
+      QrCodedText.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal]![ver]!;
+    const blockEccLen: int =
+      QrCodedText.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal]![ver]!;
+    const rawCodewords: int = Math.floor(
+      QrCodedText.getNumRawDataModules(ver) / 8,
+    );
     const numShortBlocks: int = numBlocks - (rawCodewords % numBlocks);
     const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
 
     // Split data into blocks and append ECC to each block
     const blocks: Array<Array<byte>> = [];
-    const rsDiv: Array<byte> = QrCode.reedSolomonComputeDivisor(blockEccLen);
+    const rsDiv: Array<byte> =
+      QrCodedText.reedSolomonComputeDivisor(blockEccLen);
     for (let i = 0, k = 0; i < numBlocks; i++) {
       const dat: Array<byte> = data.slice(
         k,
         k + shortBlockLen - blockEccLen + (i < numShortBlocks ? 0 : 1),
       );
       k += dat.length;
-      const ecc: Array<byte> = QrCode.reedSolomonComputeRemainder(dat, rsDiv);
+      const ecc: Array<byte> = QrCodedText.reedSolomonComputeRemainder(
+        dat,
+        rsDiv,
+      );
       if (i < numShortBlocks) dat.push(0);
       blocks.push(dat.concat(ecc));
     }
@@ -403,7 +402,8 @@ export class QrCode {
   // data area of this QR Code. Function modules need to be marked off before this is called.
   private drawCodewords(data: Readonly<Array<byte>>): void {
     if (
-      data.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8)
+      data.length !=
+      Math.floor(QrCodedText.getNumRawDataModules(this.version) / 8)
     )
       throw new RangeError("Invalid argument");
     let i: int = 0; // Bit index into the data
@@ -486,20 +486,21 @@ export class QrCode {
       for (let x = 0; x < this.size; x++) {
         if (this.modules[y]![x] == runColor) {
           runX++;
-          if (runX == 5) result += QrCode.PENALTY_N1;
+          if (runX == 5) result += QrCodedText.PENALTY_N1;
           else if (runX > 5) result++;
         } else {
           this.finderPenaltyAddHistory(runX, runHistory);
           if (!runColor)
             result +=
-              this.finderPenaltyCountPatterns(runHistory) * QrCode.PENALTY_N3;
+              this.finderPenaltyCountPatterns(runHistory) *
+              QrCodedText.PENALTY_N3;
           runColor = this.modules[y]![x]!;
           runX = 1;
         }
       }
       result +=
         this.finderPenaltyTerminateAndCount(runColor, runX, runHistory) *
-        QrCode.PENALTY_N3;
+        QrCodedText.PENALTY_N3;
     }
     // Adjacent modules in column having same color, and finder-like patterns
     for (let x = 0; x < this.size; x++) {
@@ -509,20 +510,21 @@ export class QrCode {
       for (let y = 0; y < this.size; y++) {
         if (this.modules[y]![x] == runColor) {
           runY++;
-          if (runY == 5) result += QrCode.PENALTY_N1;
+          if (runY == 5) result += QrCodedText.PENALTY_N1;
           else if (runY > 5) result++;
         } else {
           this.finderPenaltyAddHistory(runY, runHistory);
           if (!runColor)
             result +=
-              this.finderPenaltyCountPatterns(runHistory) * QrCode.PENALTY_N3;
+              this.finderPenaltyCountPatterns(runHistory) *
+              QrCodedText.PENALTY_N3;
           runColor = this.modules[y]![x]!;
           runY = 1;
         }
       }
       result +=
         this.finderPenaltyTerminateAndCount(runColor, runY, runHistory) *
-        QrCode.PENALTY_N3;
+        QrCodedText.PENALTY_N3;
     }
 
     // 2*2 blocks of modules having same color
@@ -534,7 +536,7 @@ export class QrCode {
           color == this.modules[y + 1]![x] &&
           color == this.modules[y + 1]![x + 1]
         )
-          result += QrCode.PENALTY_N2;
+          result += QrCodedText.PENALTY_N2;
       }
     }
 
@@ -546,7 +548,7 @@ export class QrCode {
     // Compute the smallest integer k >= 0 such that (45-5k)% <= dark/total <= (55+5k)%
     const k: int = Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1;
     assert(0 <= k && k <= 9);
-    result += k * QrCode.PENALTY_N4;
+    result += k * QrCodedText.PENALTY_N4;
     assert(0 <= result && result <= 2568888); // Non-tight upper bound based on default values of PENALTY_N1, ..., N4
     return result;
   }
@@ -574,7 +576,7 @@ export class QrCode {
   // all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
   // The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
   private static getNumRawDataModules(ver: int): int {
-    if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
+    if (ver < QrCodedText.MIN_VERSION || ver > QrCodedText.MAX_VERSION)
       throw new RangeError("Version number out of range");
     let result: int = (16 * ver + 128) * ver + 64;
     if (ver >= 2) {
@@ -594,9 +596,9 @@ export class QrCode {
     ecl: QrErrorCorrectionLevel,
   ): int {
     return (
-      Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
-      QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal]![ver]! *
-        QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal]![ver]!
+      Math.floor(QrCodedText.getNumRawDataModules(ver) / 8) -
+      QrCodedText.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal]![ver]! *
+        QrCodedText.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal]![ver]!
     );
   }
 
@@ -617,10 +619,10 @@ export class QrCode {
     for (let i = 0; i < degree; i++) {
       // Multiply the current product by (x - r^i)
       for (let j = 0; j < result.length; j++) {
-        result[j] = QrCode.reedSolomonMultiply(result[j]!, root);
+        result[j] = QrCodedText.reedSolomonMultiply(result[j]!, root);
         if (j + 1 < result.length) result[j]! ^= result[j + 1]!;
       }
-      root = QrCode.reedSolomonMultiply(root, 0x02);
+      root = QrCodedText.reedSolomonMultiply(root, 0x02);
     }
     return result;
   }
@@ -636,7 +638,8 @@ export class QrCode {
       const factor: byte = b ^ (result.shift() as byte);
       result.push(0);
       divisor.forEach(
-        (coef, i) => (result[i]! ^= QrCode.reedSolomonMultiply(coef, factor)),
+        (coef, i) =>
+          (result[i]! ^= QrCodedText.reedSolomonMultiply(coef, factor)),
       );
     }
     return result;

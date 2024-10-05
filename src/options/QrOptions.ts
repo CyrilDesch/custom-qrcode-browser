@@ -1,7 +1,7 @@
 import {
   QrErrorCorrectionLevel,
   type QrErrorCorrectionLevelConfig,
-} from "../encoder/QrEncoder";
+} from "../encode/QrCodedText";
 import { QrShapes } from "./QrShapes";
 import {
   createQrShapesFromConfig,
