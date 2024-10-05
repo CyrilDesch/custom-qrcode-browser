@@ -1,9 +1,9 @@
-// Interface de base pour tous les types de QR Data
+// Base interface for all QR Data types
 export interface IQrData {
   encode(): string;
 }
 
-// Classe pour les textes simples
+// Class representing simple text for QR
 class Text implements IQrData {
   constructor(public value: string) {}
 
@@ -12,7 +12,7 @@ class Text implements IQrData {
   }
 }
 
-// Classe pour les URLs
+// Class representing URLs for QR
 class Url implements IQrData {
   constructor(public url: string) {}
 
@@ -21,7 +21,7 @@ class Url implements IQrData {
   }
 }
 
-// Classe pour les emails
+// Class representing email data for QR
 class Email implements IQrData {
   constructor(
     public email: string,
@@ -46,7 +46,7 @@ class Email implements IQrData {
   }
 }
 
-// Classe pour les coordonnées géographiques
+// Class representing geographic coordinates for QR
 class GeoPos implements IQrData {
   constructor(
     public lat: number,
@@ -58,7 +58,7 @@ class GeoPos implements IQrData {
   }
 }
 
-// Classe pour les bookmarks
+// Class representing bookmark data for QR
 class Bookmark implements IQrData {
   constructor(
     public url: string,
@@ -70,17 +70,17 @@ class Bookmark implements IQrData {
   }
 }
 
-// Namespace pour l'authentification Wi-Fi
+// Enum representing Wi-Fi authentication types
 enum Authentication {
   WEP = "WEP",
   WPA = "WPA",
   OPEN = "nopass",
 }
 
-// Classe pour les Wi-Fi
+// Class representing Wi-Fi credentials for QR
 class Wifi implements IQrData {
   constructor(
-    public authentication?: Authentication | undefined,
+    public authentication?: Authentication,
     public ssid?: string,
     public psk?: string,
     public hidden: boolean = false,
@@ -96,17 +96,11 @@ class Wifi implements IQrData {
   }
 
   static escape(text: string): string {
-    return text
-      .replace(/\\/g, "\\\\")
-      .replace(/,/g, "\\,")
-      .replace(/;/g, "\\;")
-      .replace(/\./g, "\\.")
-      .replace(/"/g, '\\"')
-      .replace(/'/g, "\\'");
+    return text.replace(/[\\,;."']/g, (match) => `\\${match}`);
   }
 }
 
-// Classe pour le Wi-Fi d'entreprise
+// Class representing enterprise Wi-Fi credentials for QR
 class EnterpriseWifi implements IQrData {
   constructor(
     public ssid?: string,
@@ -129,7 +123,7 @@ class EnterpriseWifi implements IQrData {
   }
 }
 
-// Classe pour les numéros de téléphone
+// Class representing phone numbers for QR
 class Phone implements IQrData {
   constructor(public phoneNumber: string) {}
 
@@ -138,7 +132,7 @@ class Phone implements IQrData {
   }
 }
 
-// Classe pour les SMS ou MMS
+// Class representing SMS or MMS data for QR
 class SMS implements IQrData {
   constructor(
     public phoneNumber: string,
@@ -151,7 +145,7 @@ class SMS implements IQrData {
   }
 }
 
-// Classe pour les cartes de visite
+// Class representing business cards for QR (BizCard format)
 class BizCard implements IQrData {
   constructor(
     public firstName?: string,
@@ -178,7 +172,7 @@ class BizCard implements IQrData {
   }
 }
 
-// Classe pour les VCards
+// Class representing VCards for QR
 class VCard implements IQrData {
   constructor(
     public name?: string,
@@ -207,7 +201,7 @@ class VCard implements IQrData {
   }
 }
 
-// Classe pour les MeCards
+// Class representing MeCards for QR
 class MeCard implements IQrData {
   constructor(
     public name?: string,
@@ -228,7 +222,7 @@ class MeCard implements IQrData {
   }
 }
 
-// Classe pour les vidéos YouTube
+// Class representing YouTube videos for QR
 class YouTube implements IQrData {
   constructor(public videoId: string) {}
 
@@ -237,7 +231,7 @@ class YouTube implements IQrData {
   }
 }
 
-// Classe pour les événements
+// Class representing events for QR (iCalendar format)
 class Event implements IQrData {
   constructor(
     public uid?: string,
@@ -262,7 +256,7 @@ class Event implements IQrData {
   }
 }
 
-// Classe pour les applications Google Play
+// Class representing Google Play apps for QR
 class GooglePlay implements IQrData {
   constructor(public appPackage: string) {}
 

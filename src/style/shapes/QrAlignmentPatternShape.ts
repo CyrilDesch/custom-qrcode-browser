@@ -3,16 +3,16 @@ import type { IQrSVGShape } from "../SVGInterfaces";
 import {
   createSvgGroupFromElements,
   createSvgPathFromString,
-} from "../../utils/utils";
+} from "../../utils/SvgUtils";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
-import { getNeighbors } from "../../encoder/QrCodeMatrix";
 import { QrColor, type IQrColor } from "../QrColor";
 import { QrEyeShape } from "./QrEyeShape";
+import { getNeighbors } from "../../utils/Neighbors";
 
 export const alignmentPatternSize = 5;
 
 /**
- * Interface représentant la forme du cadre du QR code.
+ * Interface representing the alignment pattern shape for the QR code.
  */
 interface IQrAlignmentPatternShape extends IQrSVGShape {}
 
@@ -42,7 +42,7 @@ abstract class BaseAlignmentPatternShape implements IQrAlignmentPatternShape {
 }
 
 /**
- * Forme par défaut pour le cadre du QR code (7x7 avec cadre de 1px d'épaisseur).
+ * Square shape for alignment pattern
  */
 class Square extends BaseAlignmentPatternShape {
   createSvgElement(
@@ -52,14 +52,14 @@ class Square extends BaseAlignmentPatternShape {
   ): SVGElement {
     this.addAlignmentPatternCoordinates(designer, x, y);
 
-    if (this.pixelShape instanceof QrPixelShape.NeighborAware) {
+    if (this.pixelShape instanceof QrPixelShape.StickyCorners) {
       const outerPath = new QrEyeShape.Square(
         this.pixelShape.cornerRadius,
         alignmentPatternSize,
         this.color,
       ).createSvgElement(x, y, designer);
       const innerPath = new QrEyeShape.Square(
-        this.pixelShape.cornerRadius - 0.05 * this.pixelShape.sizeRatio, // Fix inner corner radius
+        this.pixelShape.cornerRadius - 0.05 * this.pixelShape.sizeRatio,
         alignmentPatternSize - this.pixelShape.sizeRatio * 2,
         designer.options.shapes.background?.color ?? new QrColor.Solid("white"),
       ).createSvgElement(
@@ -67,76 +67,48 @@ class Square extends BaseAlignmentPatternShape {
         y + this.pixelShape.sizeRatio,
         designer,
       );
-      const path = createSvgPathFromString(
-        this.pixelShape.createSvgElement(
-          x + 2,
-          y + 2,
-          1,
-          getNeighbors(designer.qrMatrix, x + 2, y + 2),
-        ),
-      );
-      this.color.applyToElement(path, designer.mainSvg);
-      return createSvgGroupFromElements([outerPath, innerPath, path]);
+      const pixelPath = this.createPixelPath(x, y, designer);
+      return createSvgGroupFromElements([outerPath, innerPath, pixelPath]);
     } else {
-      let pathData = "";
-      for (let i = x; i < x + alignmentPatternSize; i++) {
-        for (let j = y; j < y + alignmentPatternSize; j++) {
-          if (
-            i === x ||
-            j === y ||
-            i === x + alignmentPatternSize - 1 ||
-            j === y + alignmentPatternSize - 1
-          ) {
-            pathData += this.pixelShape.createSvgElement(
-              i,
-              j,
-              1,
-              getNeighbors(designer.qrMatrix, i, j),
-            );
-          }
-        }
-      }
-
-      pathData += this.pixelShape.createSvgElement(
-        x + 2,
-        y + 2,
-        1,
-        getNeighbors(designer.qrMatrix, x + 2, y + 2),
-      );
-
-      const svg = createSvgPathFromString(pathData);
-      this.color.applyToElement(svg, designer.mainSvg);
-      return svg;
+      return this.createSimpleSquarePath(x, y, designer);
     }
   }
-}
 
-/**
- * Forme de cadre circulaire.
- */
-class Circle extends BaseAlignmentPatternShape {
-  createSvgElement(
+  private createPixelPath(x: number, y: number, designer: QrShapesDesigner) {
+    const pathData = this.pixelShape.createSvgElement(
+      x + 2,
+      y + 2,
+      1,
+      getNeighbors(designer.qrMatrix, x + 2, y + 2),
+    );
+    const path = createSvgPathFromString(pathData);
+    this.color.applyToElement(path, designer.mainSvg);
+    return path;
+  }
+
+  private createSimpleSquarePath(
     x: number,
     y: number,
     designer: QrShapesDesigner,
-  ): SVGElement {
-    this.addAlignmentPatternCoordinates(designer, x, y);
-    const cx = x + alignmentPatternSize / 2;
-    const cy = y + alignmentPatternSize / 2;
-    const r = alignmentPatternSize / 2; // Rayon du cercle ajusté
+  ) {
     let pathData = "";
-
-    const rInner = r - 1;
-
-    // Création d'un anneau circulaire (cercle vide à l'intérieur)
-    pathData = `
-        M ${cx + r}, ${cy}
-        A ${r},${r} 0 1,0 ${cx - r},${cy}
-        A ${r},${r} 0 1,0 ${cx + r},${cy}
-        M ${cx + rInner}, ${cy}
-        A ${rInner},${rInner} 0 1,1 ${cx - rInner},${cy}
-        A ${rInner},${rInner} 0 1,1 ${cx + rInner},${cy}
-      `;
+    for (let i = x; i < x + alignmentPatternSize; i++) {
+      for (let j = y; j < y + alignmentPatternSize; j++) {
+        if (
+          i === x ||
+          j === y ||
+          i === x + alignmentPatternSize - 1 ||
+          j === y + alignmentPatternSize - 1
+        ) {
+          pathData += this.pixelShape.createSvgElement(
+            i,
+            j,
+            1,
+            getNeighbors(designer.qrMatrix, i, j),
+          );
+        }
+      }
+    }
 
     pathData += this.pixelShape.createSvgElement(
       x + 2,
@@ -145,14 +117,54 @@ class Circle extends BaseAlignmentPatternShape {
       getNeighbors(designer.qrMatrix, x + 2, y + 2),
     );
 
-    const pathElement = createSvgPathFromString(pathData);
-    pathElement.setAttribute("fill-rule", "evenodd");
-    this.color.applyToElement(pathElement, designer.mainSvg);
-    return pathElement;
+    const svg = createSvgPathFromString(pathData);
+    this.color.applyToElement(svg, designer.mainSvg);
+    return svg;
   }
 }
 
-// Export des classes et objets
+/**
+ * Circular alignment pattern shape.
+ */
+class Circle extends BaseAlignmentPatternShape {
+  createSvgElement(
+    x: number,
+    y: number,
+    designer: QrShapesDesigner,
+  ): SVGElement {
+    this.addAlignmentPatternCoordinates(designer, x, y);
+
+    const cx = x + alignmentPatternSize / 2;
+    const cy = y + alignmentPatternSize / 2;
+    const r = alignmentPatternSize / 2;
+    const pathData = this.createCirclePathData(cx, cy, r);
+
+    const pixelPath = this.pixelShape.createSvgElement(
+      x + 2,
+      y + 2,
+      1,
+      getNeighbors(designer.qrMatrix, x + 2, y + 2),
+    );
+    const pathElement = createSvgPathFromString(`${pathData}${pixelPath}`);
+    pathElement.setAttribute("fill-rule", "evenodd");
+
+    this.color.applyToElement(pathElement, designer.mainSvg);
+    return pathElement;
+  }
+
+  private createCirclePathData(cx: number, cy: number, r: number): string {
+    const rInner = r - 1;
+    return `
+      M ${cx + r}, ${cy}
+      A ${r},${r} 0 1,0 ${cx - r},${cy}
+      A ${r},${r} 0 1,0 ${cx + r},${cy}
+      M ${cx + rInner}, ${cy}
+      A ${rInner},${rInner} 0 1,1 ${cx - rInner},${cy}
+      A ${rInner},${rInner} 0 1,1 ${cx + rInner},${cy}
+    `;
+  }
+}
+
 export const QrAlignmentPatternShape = {
   Square,
   Circle,

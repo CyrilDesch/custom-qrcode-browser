@@ -1,33 +1,33 @@
-import type { QrCodeMatrix } from "../encoder/QrCodeMatrix";
-import type { QrOptions } from "../options/QrOptions";
-import { createSvgGroupFromElements } from "../utils/utils";
+import type { QrCodeMatrix } from "../encode/QrCodeMatrix";
+import { type QrOptions } from "../options/QrOptions";
+import {
+  computeViewBoxIncrease,
+  createSvgGroupFromElements,
+} from "../utils/SvgUtils";
 import { eyeFrameSize } from "./shapes/QrEyeFrameShape";
-import { QrShape } from "./shapes/QrShape";
 
 export class QrShapesDesigner {
-  usedCoordinates: Set<string>;
+  usedCoordinates = new Set<string>();
 
   constructor(
     public qrMatrix: QrCodeMatrix,
     public options: QrOptions,
     public mainSvg: SVGElement,
-  ) {
-    this.usedCoordinates = new Set<string>();
-  }
+  ) {}
 
-  get qrXOrigin(): number {
+  get qrXOrigin() {
     return this.shapes.qrCode.qrOriginStart[0];
   }
 
-  get qrYOrigin(): number {
+  get qrYOrigin() {
     return this.shapes.qrCode.qrOriginStart[1];
   }
 
-  get qrXEnd(): number {
+  get qrXEnd() {
     return this.qrMatrix.size - this.qrXOrigin;
   }
 
-  get qrYEnd(): number {
+  get qrYEnd() {
     return this.qrMatrix.size - this.qrYOrigin;
   }
 
@@ -35,112 +35,92 @@ export class QrShapesDesigner {
     return this.options.shapes;
   }
 
-  addUsedCoordinate(x: number, y: number): void {
+  addUsedCoordinate(x: number, y: number) {
     this.usedCoordinates.add(`${x},${y}`);
   }
-  isUsedCoordinate(x: number, y: number): boolean {
+
+  isUsedCoordinate(x: number, y: number) {
     return this.usedCoordinates.has(`${x},${y}`);
   }
 
-  // Get start coordinates for each element
+  // Get the start coordinates for different QR code elements
   private get qrCodeElementStartCoordinate() {
-    const eyesFramesPositions = [
-      { x: this.qrXOrigin, y: this.qrYOrigin }, // Coin supérieur gauche
-      { x: this.qrXEnd - eyeFrameSize, y: this.qrYOrigin }, // Coin supérieur droit
-      { x: this.qrXOrigin, y: this.qrYEnd - eyeFrameSize }, // Coin inférieur gauche
+    const { qrXOrigin, qrYOrigin, qrXEnd, qrYEnd } = this;
+    const eyePositions = [
+      { x: qrXOrigin, y: qrYOrigin }, // Top-left corner
+      { x: qrXEnd - eyeFrameSize, y: qrYOrigin }, // Top-right corner
+      { x: qrXOrigin, y: qrYEnd - eyeFrameSize }, // Bottom-left corner
     ];
 
-    // Coordonnées des cadres autour des yeux
-    const eyesPositions = eyesFramesPositions.map((pos) => ({
-      x: pos.x + 2,
-      y: pos.y + 2,
-    }));
-
-    // Coordonnées de la ligne de synchronisation (Timing Pattern)
-    const timingLinePosition = {
-      x: this.qrXOrigin + eyeFrameSize - 1,
-      y: this.qrYOrigin + eyeFrameSize - 1,
-    };
-
-    // Coordonnées du pattern d'alignement
-    const alignmentPatternPosition = {
-      x: this.qrXEnd - 9,
-      y: this.qrYEnd - 9,
-    };
-
     return {
-      timingLinePosition,
-      eyesFramesPositions,
-      eyesPositions,
-      alignmentPatternPosition,
+      timingLinePosition: {
+        x: qrXOrigin + eyeFrameSize - 1,
+        y: qrYOrigin + eyeFrameSize - 1,
+      },
+      eyesFramesPositions: eyePositions,
+      eyesPositions: eyePositions.map(({ x, y }) => ({ x: x + 2, y: y + 2 })), // Slight offset for inner eye
+      alignmentPatternPosition: { x: qrXEnd - 9, y: qrYEnd - 9 },
     };
   }
 
   drawSvg() {
-    if (!this.qrMatrix) {
-      throw new Error("No QR matrix set");
-    }
+    if (!this.qrMatrix) throw new Error("No QR matrix set");
 
-    // Draw SVG elements
-    if (this.shapes.background) {
-      const background = this.shapes.background.createSvgElement(this.mainSvg);
-      this.mainSvg.appendChild(background);
-    }
-
+    const { shapes, mainSvg, qrCodeElementStartCoordinate } = this;
     const qrGroupedElements = [];
 
-    if (this.shapes.timingLine) {
-      const timingLineSvg = this.shapes.timingLine.createSvgElement(
-        this.qrCodeElementStartCoordinate.timingLinePosition.x,
-        this.qrCodeElementStartCoordinate.timingLinePosition.y,
-        this,
-      );
-      qrGroupedElements.push(timingLineSvg);
-    }
+    // Create background if defined
+    if (shapes.background)
+      mainSvg.appendChild(shapes.background.createSvgElement(mainSvg));
 
-    if (this.shapes.eyeFrame) {
-      for (const eyeFrame of this.qrCodeElementStartCoordinate
-        .eyesFramesPositions) {
-        const eyeFrameSvg = this.shapes.eyeFrame.createSvgElement(
-          eyeFrame.x,
-          eyeFrame.y,
+    // Create timing line if defined
+    if (shapes.timingLine) {
+      qrGroupedElements.push(
+        shapes.timingLine.createSvgElement(
+          qrCodeElementStartCoordinate.timingLinePosition.x,
+          qrCodeElementStartCoordinate.timingLinePosition.y,
           this,
-        );
-        qrGroupedElements.push(eyeFrameSvg);
-      }
-    }
-
-    if (this.shapes.eye) {
-      for (const eye of this.qrCodeElementStartCoordinate.eyesPositions) {
-        const eyeSvg = this.shapes.eye.createSvgElement(eye.x, eye.y, this);
-        qrGroupedElements.push(eyeSvg);
-      }
-    }
-
-    if (this.shapes.logo) {
-      const logo = this.shapes.logo.createSvgElement(this.mainSvg, this);
-      qrGroupedElements.push(logo);
-    }
-
-    if (this.shapes.alignmentPattern) {
-      const alignmentPatternSvg = this.shapes.alignmentPattern.createSvgElement(
-        this.qrCodeElementStartCoordinate.alignmentPatternPosition.x,
-        this.qrCodeElementStartCoordinate.alignmentPatternPosition.y,
-        this,
+        ),
       );
-      qrGroupedElements.push(alignmentPatternSvg);
     }
 
-    // Draw the QR code matrix
-    const darkMatrixSvg = this.shapes.matrix.createSvgElement(0, 0, this);
-    qrGroupedElements.push(darkMatrixSvg);
+    // Create eye frames if defined
+    if (shapes.eyeFrame) {
+      qrCodeElementStartCoordinate.eyesFramesPositions.forEach(({ x, y }) => {
+        qrGroupedElements.push(shapes.eyeFrame!.createSvgElement(x, y, this));
+      });
+    }
 
+    // Create eye inner parts if defined
+    if (shapes.eye) {
+      qrCodeElementStartCoordinate.eyesPositions.forEach(({ x, y }) => {
+        qrGroupedElements.push(shapes.eye!.createSvgElement(x, y, this));
+      });
+    }
+
+    // Add logo if defined
+    if (shapes.logo)
+      qrGroupedElements.push(shapes.logo.createSvgElement(mainSvg, this));
+
+    // Create alignment pattern if defined
+    if (shapes.alignmentPattern) {
+      qrGroupedElements.push(
+        shapes.alignmentPattern.createSvgElement(
+          qrCodeElementStartCoordinate.alignmentPatternPosition.x,
+          qrCodeElementStartCoordinate.alignmentPatternPosition.y,
+          this,
+        ),
+      );
+    }
+
+    // Create QR code matrix
+    qrGroupedElements.push(shapes.matrixPixel.createSvgElement(0, 0, this));
+
+    // Group all elements, apply padding, and append to the main SVG
     const g = createSvgGroupFromElements(qrGroupedElements);
-    const fixPadding =
-      this.options.shapes.qrCode instanceof QrShape.Circle ? 0.45 : 0;
     const padding =
-      (this.options.sizeRatio * this.qrMatrix.size) / 2 - fixPadding; // const to fix strange centering;
-    g.setAttribute("transform", `translate(${padding}, ${padding})`);
-    this.mainSvg.appendChild(g);
+      computeViewBoxIncrease(this.qrMatrix.size, this.options.sizeRatio) / 2;
+    g.setAttribute("transform", `translate(${padding}, ${padding})`); // To center the QR code if sizeRatio is set
+    mainSvg.appendChild(g);
   }
 }

@@ -1,10 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  type IQrData,
-  QrCodeGenerator,
-  QrOptionsBuilder,
-  type QrOptions,
-} from "../src";
+import { type IQrData, QrCodeGenerator, QrOptions } from "../../src";
 
 type QrCodeProps = {
   data: IQrData;
@@ -13,7 +8,7 @@ type QrCodeProps = {
 
 const QrCode: React.FC<QrCodeProps> = ({
   data,
-  options = new QrOptionsBuilder().build(),
+  options = new QrOptions({}),
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 

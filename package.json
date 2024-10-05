@@ -1,6 +1,6 @@
 {
   "name": "custom-qrcode-browser",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.mjs",
   "module": "lib/index.mjs",
   "types": "lib/types/index.d.ts",
@@ -40,6 +40,10 @@
   },
   "author": {
     "name": "Cyril Deschamps (https://cyrildeschamps.fr)"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "license": "MIT",
   "type": "module"

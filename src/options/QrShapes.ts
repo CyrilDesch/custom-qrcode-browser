@@ -1,61 +1,44 @@
-import type { IQrAlignmentPatternShape } from "../style/shapes/QrAlignmentPattern";
+import type { IQrAlignmentPatternShape } from "../style/shapes/QrAlignmentPatternShape";
 import { QrBackground } from "../style/shapes/QrBackground";
 import { type IQrEyeFrameShape } from "../style/shapes/QrEyeFrameShape";
 import { type IQrEyeShape } from "../style/shapes/QrEyeShape";
 import { type IQrLogoShape } from "../style/shapes/QrLogoShape";
 import {
-  QrMatrixShape,
-  type IQrMatrixShape,
-} from "../style/shapes/QrMatrixShape";
+  QrMatrixPixelShape,
+  type IQrMatrixPixelShape,
+} from "../style/shapes/QrMatrixPixelShape";
 import { QrPixelShape } from "../style/shapes/QrPixelShape";
 import { QrShape, type IQrShape } from "../style/shapes/QrShape";
 import { QrTimingLineShape } from "../style/shapes/QrTimingLineShape";
 
-/**
- * Interface représentant les formes des éléments du QR code.
- */
+// Represents the shapes of various elements in the QR code
 export interface IQrShapes {
-  matrix: IQrMatrixShape;
-  eye: IQrEyeShape | null;
-  eyeFrame: IQrEyeFrameShape | null;
-  timingLine: QrTimingLineShape | null;
-  logo: IQrLogoShape | null;
-  background: QrBackground | null;
-  qrCode: IQrShape;
   alignmentPattern: IQrAlignmentPatternShape | null;
+  background: QrBackground | null;
+  eyeFrame: IQrEyeFrameShape | null;
+  eye: IQrEyeShape | null;
+  logo: IQrLogoShape | null;
+  matrixPixel: IQrMatrixPixelShape;
+  qrCode: IQrShape;
+  timingLine: QrTimingLineShape | null;
 }
 
-/**
- * Classe représentant les formes des éléments du QR code.
- * Par défaut, toutes les formes sont symétriques avec des pixels et des formes par défaut.
- */
+// Class representing the shapes of QR code elements with default symmetrical shapes
 export class QrShapes implements IQrShapes {
-  matrix: IQrMatrixShape;
-  eye: IQrEyeShape | null;
-  eyeFrame: IQrEyeFrameShape | null;
-  timingLine: QrTimingLineShape | null;
-  logo: IQrLogoShape | null;
-  background: QrBackground | null;
+  matrixPixel: IQrMatrixPixelShape;
   qrCode: IQrShape;
-  alignmentPattern: IQrAlignmentPatternShape | null;
-
   constructor(
-    matrix: IQrMatrixShape = new QrMatrixShape(new QrPixelShape.Square()),
-    eye: IQrEyeShape | null = null,
-    eyeFrame: IQrEyeFrameShape | null = null,
-    timingLine: QrTimingLineShape | null = null,
-    logo: IQrLogoShape | null = null,
-    background: QrBackground | null = null,
-    qrCode: IQrShape = new QrShape.Square(),
-    alignmentPattern: IQrAlignmentPatternShape | null = null,
+    public alignmentPattern: IQrAlignmentPatternShape | null = null,
+    public background: QrBackground | null = null,
+    public eyeFrame: IQrEyeFrameShape | null = null,
+    public eye: IQrEyeShape | null = null,
+    public logo: IQrLogoShape | null = null,
+    matrixPixel: IQrMatrixPixelShape | null,
+    qrCode: IQrShape | null,
+    public timingLine: QrTimingLineShape | null = null,
   ) {
-    this.matrix = matrix;
-    this.eye = eye;
-    this.eyeFrame = eyeFrame;
-    this.timingLine = timingLine;
-    this.logo = logo;
-    this.background = background;
-    this.qrCode = qrCode;
-    this.alignmentPattern = alignmentPattern;
+    this.matrixPixel =
+      matrixPixel ?? new QrMatrixPixelShape(new QrPixelShape.Square());
+    this.qrCode = qrCode ?? new QrShape.Square();
   }
 }

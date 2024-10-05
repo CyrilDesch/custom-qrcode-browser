@@ -3,11 +3,11 @@ import type { IQrSVGShape } from "../SVGInterfaces";
 import {
   createSvgGroupFromElements,
   createSvgPathFromString,
-} from "../../utils/utils";
+} from "../../utils/SvgUtils";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
-import { getNeighbors } from "../../encoder/QrCodeMatrix";
 import { QrColor, type IQrColor } from "../QrColor";
 import { QrEyeShape } from "./QrEyeShape";
+import { getNeighbors } from "../../utils/Neighbors";
 
 export const eyeFrameSize = 7;
 
@@ -59,7 +59,7 @@ class Square extends BaseEyeFrameShape {
   ): SVGElement {
     this.addEyeFrameCoordinates(designer, x, y);
 
-    if (this.pixelShape instanceof QrPixelShape.NeighborAware) {
+    if (this.pixelShape instanceof QrPixelShape.StickyCorners) {
       const outerPath = new QrEyeShape.Square(
         this.pixelShape.cornerRadius,
         eyeFrameSize,
@@ -116,7 +116,7 @@ class Circle extends BaseEyeFrameShape {
     const r = eyeFrameSize / 2; // Rayon du cercle ajusté
     let pathData = "";
 
-    if (this.pixelShape instanceof QrPixelShape.NeighborAware) {
+    if (this.pixelShape instanceof QrPixelShape.StickyCorners) {
       const rInner = r - 1;
 
       // Création d'un anneau circulaire (cercle vide à l'intérieur)

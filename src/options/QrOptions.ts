@@ -1,56 +1,32 @@
-import { QrErrorCorrectionLevel } from "./QrErrorCorrectionLevel";
+import {
+  QrErrorCorrectionLevel,
+  type QrErrorCorrectionLevelConfig,
+} from "../encode/QrCodedText";
 import { QrShapes } from "./QrShapes";
+import {
+  createQrShapesFromConfig,
+  type QrShapesConfig,
+} from "./QrShapesMapper";
 
-/**
- * Représentation des options pour un QR code vectoriel.
- */
+export interface QrOptionsConfig {
+  sizeRatio?: number;
+  shapes?: QrShapesConfig;
+  errorCorrectionLevel?: QrErrorCorrectionLevelConfig;
+}
+
+// Represents the options of the QR code
 export class QrOptions {
   sizeRatio: number;
   shapes: QrShapes;
   errorCorrectionLevel: QrErrorCorrectionLevel;
 
-  constructor(
-    sizeRatio: number,
-    shapes: QrShapes,
-    errorCorrectionLevel: QrErrorCorrectionLevel,
-  ) {
-    this.sizeRatio = sizeRatio;
-    this.shapes = shapes;
-    this.errorCorrectionLevel = errorCorrectionLevel;
-  }
-}
-
-/**
- * Builder pour créer une instance de `QrOptions`.
- */
-export class QrOptionsBuilder {
-  public sizeRatio: number = 1;
-  public shapes: QrShapes = new QrShapes();
-  public errorCorrectionLevel: QrErrorCorrectionLevel =
-    QrErrorCorrectionLevel.Low;
-
-  setSizeRatio(sizeRatio: number): QrOptionsBuilder {
-    this.sizeRatio = 1 - sizeRatio;
-    return this;
-  }
-
-  setShapes(shapes: QrShapes): QrOptionsBuilder {
-    this.shapes = shapes;
-    return this;
-  }
-
-  setErrorCorrectionLevel(
-    errorCorrectionLevel: QrErrorCorrectionLevel,
-  ): QrOptionsBuilder {
-    this.errorCorrectionLevel = errorCorrectionLevel;
-    return this;
-  }
-
-  build(): QrOptions {
-    return new QrOptions(
-      this.sizeRatio,
-      this.shapes,
-      this.errorCorrectionLevel,
-    );
+  constructor(config: QrOptionsConfig) {
+    this.sizeRatio = config.sizeRatio ?? 1;
+    this.shapes = config.shapes
+      ? createQrShapesFromConfig(config.shapes)
+      : new QrShapes(null, null, null, null, null, null, null, null);
+    this.errorCorrectionLevel = config.errorCorrectionLevel
+      ? QrErrorCorrectionLevel.fromString(config.errorCorrectionLevel)
+      : QrErrorCorrectionLevel.HIGH;
   }
 }
