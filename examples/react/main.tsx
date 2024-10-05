@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { QrData, QrOptions } from "../src";
+import { QrData, QrOptions } from "../../src";
 import QrCode from "./QrCode";
 
 const container = document.getElementById("root");
@@ -10,7 +10,7 @@ const App = () => {
   const [svg, setSvg] = React.useState<string | null>(null);
 
   useEffect(() => {
-    void fetch("test-react/starbucks.svg")
+    void fetch("starbucks.svg")
       .then((res) => res.text())
       .then((res) => setSvg(res));
     setSvg(svg);
@@ -42,7 +42,7 @@ const App = () => {
           cornerRadius: 0.2,
           color: {
             type: "Solid",
-            value: "green",
+            value: "#007048",
           },
         },
         eyeFrame: {
@@ -53,7 +53,7 @@ const App = () => {
           },
           color: {
             type: "Solid",
-            value: "green",
+            value: "#007048",
           },
         },
         logo: {
@@ -64,16 +64,6 @@ const App = () => {
           color: {
             type: "Solid",
             value: "white",
-          },
-        },
-        timingLine: {
-          pixelShape: {
-            type: "Circle",
-            sizeRatio: 0.6,
-          },
-          color: {
-            type: "Solid",
-            value: "green",
           },
         },
         background: {
@@ -90,7 +80,7 @@ const App = () => {
           },
           color: {
             type: "Solid",
-            value: "green",
+            value: "#007048",
           },
         },
       },
@@ -101,12 +91,15 @@ const App = () => {
 
   return (
     <div>
-      <p>Test</p>
+      <p>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+          Do you like rick ?
+        </a>
+      </p>
       <div style={{ display: "flex", flexDirection: "row", gap: 10 }}>
         <div style={{ width: 300 }}>
           <QrCode data={data} options={options} />
         </div>
-        <img width={300} src="test-react/unnamed.png" alt="TikTok" />
       </div>
     </div>
   );

@@ -1,0 +1,4 @@
+.eslintrc.cjs linguist-vendored
+.rollup.config.mjs linguist-vendored
+.prettierrc.cjs linguist-vendored
+*.html linguist-vendored

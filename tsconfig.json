@@ -3,5 +3,5 @@
   "compilerOptions": {
     "jsx": "react-jsx"
   },
-  "include": ["./src/**/*.ts", "./test-react/**/*.ts", "./test-react/**/*.tsx"]
+  "include": ["./src/**/*.ts", "examples/**/*.ts", "examples/**/*.tsx"]
 }

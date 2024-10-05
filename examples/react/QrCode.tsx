@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { type IQrData, QrCodeGenerator, QrOptions } from "../src";
+import { type IQrData, QrCodeGenerator, QrOptions } from "../../src";
 
 type QrCodeProps = {
   data: IQrData;
