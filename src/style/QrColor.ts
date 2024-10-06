@@ -164,6 +164,11 @@ class SweepGradient implements IQrColor {
   }
 }
 
+export type LinearGradientOrientationConfig =
+  | "Vertical"
+  | "Horizontal"
+  | "LeftDiagonal"
+  | "RightDiagonal";
 class LinearGradientOrientation {
   constructor(
     public start: [string, string],
@@ -186,6 +191,21 @@ class LinearGradientOrientation {
     ["100%", "0%"],
     ["0%", "100%"],
   );
+
+  static fromString(
+    orientation: LinearGradientOrientationConfig,
+  ): LinearGradientOrientation {
+    switch (orientation) {
+      case "Vertical":
+        return LinearGradientOrientation.Vertical;
+      case "Horizontal":
+        return LinearGradientOrientation.Horizontal;
+      case "LeftDiagonal":
+        return LinearGradientOrientation.LeftDiagonal;
+      case "RightDiagonal":
+        return LinearGradientOrientation.RightDiagonal;
+    }
+  }
 }
 
 const QrColor = {
@@ -197,4 +217,4 @@ const QrColor = {
 
 // Exports
 export type { IQrColor };
-export { QrColor, LinearGradientOrientation as GradientOrientation };
+export { QrColor, LinearGradientOrientation };

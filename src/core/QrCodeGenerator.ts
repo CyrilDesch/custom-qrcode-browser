@@ -1,22 +1,34 @@
 import { QrCodeMatrix } from "../encode/QrCodeMatrix";
-import { QrOptions } from "../options/QrOptions";
+import { QrOptions, type QrOptionsConfig } from "../options/QrOptions";
 import { QrShapesDesigner } from "../style/QrShapesDesigner";
 import { QrCodedText } from "../encode/QrCodedText";
 import type { IQrData } from "../encode/QrData";
 import { computeViewBoxIncrease } from "../utils/SvgUtils";
+import {
+  createQrDataFromConfig,
+  type QrDataConfig,
+} from "../encode/QrDataMapper";
 
-// Client function to create a custom QR code in SVG format
+export interface QrCodeConfig {
+  data: QrDataConfig;
+  options?: QrOptionsConfig;
+}
+
+// Client function to init a custom QR code instance without draw it
 export function QrCodeGenerator(
   svgElement: SVGSVGElement,
-  data: IQrData,
-  options: QrOptions = new QrOptions({}),
+  config: QrCodeConfig,
 ): QrCodeGeneratorImpl {
-  return new QrCodeGeneratorImpl(svgElement, data, options);
+  return new QrCodeGeneratorImpl(
+    svgElement,
+    createQrDataFromConfig(config.data),
+    new QrOptions(config.options ?? {}),
+  );
 }
 
 // Class that handles the QR code generation process in SVG format
 class QrCodeGeneratorImpl {
-  private codeMatrix: QrCodeMatrix; // Custom QR code matrix
+  private codeMatrix: QrCodeMatrix;
 
   constructor(
     private svg: SVGSVGElement,
@@ -33,6 +45,7 @@ class QrCodeGeneratorImpl {
     );
   }
 
+  // Generate the SVG for the QR code and append it to the SVG element given to the constructor
   public generateSvg(): void {
     this.svg.innerHTML = ""; // Clear previous content
 

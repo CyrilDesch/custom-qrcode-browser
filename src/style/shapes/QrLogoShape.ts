@@ -84,11 +84,11 @@ abstract class BaseLogoShape implements IQrLogoShape {
  */
 class SquareShape extends BaseLogoShape {
   constructor(
-    imageData: string | null,
-    sizeRatio: number,
-    padding: number,
-    color: IQrColor,
-    public cornerRadius: number = 0, // Set cornerRadius to 0 for a sharp square
+    imageData?: string | null,
+    sizeRatio?: number,
+    padding?: number,
+    color?: IQrColor,
+    public cornerRadius: number = 0,
   ) {
     super(imageData, sizeRatio, padding, color);
   }
