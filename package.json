@@ -1,9 +1,9 @@
 {
   "name": "custom-qrcode-browser",
-  "version": "0.0.8",
-  "main": "index.mjs",
-  "module": "index.mjs",
-  "types": "types/index.d.ts",
+  "version": "0.0.9",
+  "main": "lib/index.mjs",
+  "module": "lib/index.mjs",
+  "types": "lib/types/index.d.ts",
   "files": [
     "lib"
   ],
@@ -53,15 +53,17 @@
     "vite": "^5.4.5"
   },
   "keywords": [
-    "qrcode",
-    "qr-code-generator",
-    "svg-generator",
-    "qr-encoder",
-    "qr-code-library",
-    "customizable",
     "lightweight",
+    "open-source",
+    "browser",
+    "qrcode",
+    "stylish",
+    "qr-code",
+    "customizable",
     "no-dependencies",
-    "stylish qr",
-    "open-source"
+    "qr",
+    "qrcode-generator",
+    "svg-generator",
+    "qr-encoder"
   ]
 }
