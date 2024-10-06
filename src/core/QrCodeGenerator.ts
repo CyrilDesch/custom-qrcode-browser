@@ -9,22 +9,26 @@ import {
   type QrDataConfig,
 } from "../encode/QrDataMapper";
 
-// Client function to create a custom QR code in SVG format
+export interface QrCodeConfig {
+  data: QrDataConfig;
+  options?: QrOptionsConfig;
+}
+
+// Client function to init a custom QR code instance without draw it
 export function QrCodeGenerator(
   svgElement: SVGSVGElement,
-  data: QrDataConfig,
-  options: QrOptionsConfig = {},
+  config: QrCodeConfig,
 ): QrCodeGeneratorImpl {
   return new QrCodeGeneratorImpl(
     svgElement,
-    createQrDataFromConfig(data),
-    new QrOptions(options),
+    createQrDataFromConfig(config.data),
+    new QrOptions(config.options ?? {}),
   );
 }
 
 // Class that handles the QR code generation process in SVG format
 class QrCodeGeneratorImpl {
-  private codeMatrix: QrCodeMatrix; // Custom QR code matrix
+  private codeMatrix: QrCodeMatrix;
 
   constructor(
     private svg: SVGSVGElement,
@@ -41,6 +45,7 @@ class QrCodeGeneratorImpl {
     );
   }
 
+  // Generate the SVG for the QR code and append it to the SVG element given to the constructor
   public generateSvg(): void {
     this.svg.innerHTML = ""; // Clear previous content
 

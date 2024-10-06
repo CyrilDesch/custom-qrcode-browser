@@ -1,7 +1,7 @@
 import { PixelType } from "../../encode/QrCodeMatrix";
 import { getNeighbors } from "../../utils/Neighbors";
 import { createSvgPathFromString } from "../../utils/SvgUtils";
-import type { IQrPixelShape } from "./QrPixelShape";
+import { QrPixelShape, type IQrPixelShape } from "./QrPixelShape";
 import type { IQrSVGShape } from "../SVGInterfaces";
 import type { QrShapesDesigner } from "../QrShapesDesigner";
 import { QrColor, type IQrColor } from "../QrColor";
@@ -13,7 +13,7 @@ export interface IQrMatrixPixelShape extends IQrSVGShape {}
 
 export class QrMatrixPixelShape implements IQrMatrixPixelShape {
   constructor(
-    public pixelShape: IQrPixelShape,
+    public pixelShape: IQrPixelShape = new QrPixelShape.Square(),
     public color: IQrColor = new QrColor.Solid("black"),
   ) {}
 

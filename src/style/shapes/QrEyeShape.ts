@@ -58,7 +58,7 @@ export class SquareEyeShape extends BaseEyeShape {
   constructor(
     public cornerRadius: number = 0,
     size: number = eyeSize,
-    color: IQrColor,
+    color?: IQrColor,
   ) {
     super(size, color);
   }

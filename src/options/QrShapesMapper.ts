@@ -57,7 +57,7 @@ export function createQrShapesFromConfig(config: QrShapesConfig): QrShapes {
 export interface QrAlignmentPatternShapeConfig {
   type: "Square" | "Circle";
   pixelShape: QrPixelShapeConfig;
-  color: QrColorConfig;
+  color?: QrColorConfig;
 }
 
 function createQrAlignmentPatternShape(
@@ -65,7 +65,7 @@ function createQrAlignmentPatternShape(
 ): IQrAlignmentPatternShape {
   return new QrAlignmentPatternShape.Square(
     createQrPixelShape(config.pixelShape),
-    createQrColor(config.color),
+    config.color ? createQrColor(config.color) : undefined,
   );
 }
 
@@ -83,43 +83,12 @@ function createQrBackground(config: QrBackgroundConfig): QrBackground {
 }
 
 /** --------------------------------------------------------------------------
- * QR Color configuration.
- */
-
-export type QrColorConfig =
-  | { type: "Solid"; value: string }
-  | {
-      type: "LinearGradient";
-      colors: Array<[number, string]>;
-      orientation: LinearGradientOrientationConfig;
-    }
-  | { type: "RadialGradient"; colors: Array<[number, string]>; radius?: number }
-  | { type: "SweepGradient"; colors: Array<[number, string]> };
-
-function createQrColor(config: QrColorConfig): IQrColor {
-  switch (config.type) {
-    case "LinearGradient":
-      return new QrColor.LinearGradient(
-        config.colors,
-        LinearGradientOrientation.fromString(config.orientation),
-      );
-    case "RadialGradient":
-      return new QrColor.RadialGradient(config.colors, config.radius);
-    case "SweepGradient":
-      return new QrColor.SweepGradient(config.colors);
-    case "Solid":
-    default:
-      return new QrColor.Solid(config.value);
-  }
-}
-
-/** --------------------------------------------------------------------------
  * QR EyeFrameShape configuration.
  */
 export interface QrEyeFrameShapeConfig {
   type: "Square" | "Circle";
   pixelShape: QrPixelShapeConfig;
-  color: QrColorConfig;
+  color?: QrColorConfig;
 }
 
 function createQrEyeFrameShape(
@@ -128,11 +97,11 @@ function createQrEyeFrameShape(
   return config.type === "Circle"
     ? new QrEyeFrameShape.Circle(
         createQrPixelShape(config.pixelShape),
-        createQrColor(config.color),
+        config.color ? createQrColor(config.color) : undefined,
       )
     : new QrEyeFrameShape.Square(
         createQrPixelShape(config.pixelShape),
-        createQrColor(config.color),
+        config.color ? createQrColor(config.color) : undefined,
       );
 }
 
@@ -143,7 +112,7 @@ type QrEyeShapeType = "Square" | "Circle" | "Rhombus";
 
 interface QrEyeShapeBaseConfig {
   type: QrEyeShapeType;
-  color: QrColorConfig;
+  color?: QrColorConfig;
 }
 
 interface QrEyeShapeClassicConfig extends QrEyeShapeBaseConfig {
@@ -160,13 +129,14 @@ export type QrEyeShapeConfig =
   | QrEyeShapeRoundedConfig;
 
 function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
-  const color = createQrColor(config.color);
+  const color = config.color ? createQrColor(config.color) : undefined;
   switch (config.type) {
     case "Circle":
       return new QrEyeShape.Circle(3, color);
     case "Rhombus":
       return new QrEyeShape.Rhombus(3, color);
     case "Square":
+    default:
       return new QrEyeShape.Square(config.cornerRadius ?? 0, 3, color);
   }
 }
@@ -174,37 +144,57 @@ function createQrEyeShape(config: QrEyeShapeConfig): IQrEyeShape {
 /** --------------------------------------------------------------------------
  * QR LogoShape configuration.
  */
+
 export interface QrLogoShapeConfig {
-  type: "Circle" | "Square" | "Rhombus" | "RoundCorners";
-  image: string | null;
-  sizeRatio: number;
-  padding: number;
-  color: QrColorConfig;
+  type: "Circle" | "Square" | "Rhombus";
+  image?: string | null;
+  sizeRatio?: number;
+  padding?: number;
+  color?: QrColorConfig;
 }
 
 function createQrLogoShape(config: QrLogoShapeConfig): IQrLogoShape {
-  return new QrLogoShape.Circle(
-    config.image,
-    config.sizeRatio,
-    config.padding,
-    createQrColor(config.color),
-  );
+  const color = config.color ? createQrColor(config.color) : undefined;
+  switch (config.type) {
+    case "Circle":
+      return new QrLogoShape.Circle(
+        config.image,
+        config.sizeRatio,
+        config.padding,
+        color,
+      );
+    case "Rhombus":
+      return new QrLogoShape.Rhombus(
+        config.image,
+        config.sizeRatio,
+        config.padding,
+        color,
+      );
+    case "Square":
+    default:
+      return new QrLogoShape.Square(
+        config.image,
+        config.sizeRatio,
+        config.padding,
+        color,
+      );
+  }
 }
 
 /** --------------------------------------------------------------------------
  * QR MatrixPixelShape configuration.
  */
 export interface QrMatrixPixelShapeConfig {
-  pixelShape: QrPixelShapeConfig;
-  color: QrColorConfig;
+  pixelShape?: QrPixelShapeConfig;
+  color?: QrColorConfig;
 }
 
 function createQrMatrixPixelShape(
   config: QrMatrixPixelShapeConfig,
 ): QrMatrixPixelShape {
   return new QrMatrixPixelShape(
-    createQrPixelShape(config.pixelShape),
-    createQrColor(config.color),
+    config.pixelShape ? createQrPixelShape(config.pixelShape) : undefined,
+    config.color ? createQrColor(config.color) : undefined,
   );
 }
 
@@ -303,7 +293,7 @@ export function createQrShape(config: QrShapeConfig): IQrShape {
  */
 export interface QrTimingLineShapeConfig {
   pixelShape: QrPixelShapeConfig;
-  color: QrColorConfig;
+  color?: QrColorConfig;
 }
 
 export function createQrTimingLineShape(
@@ -311,6 +301,37 @@ export function createQrTimingLineShape(
 ): QrTimingLineShape {
   return new QrTimingLineShape(
     createQrPixelShape(config.pixelShape),
-    createQrColor(config.color),
+    config.color ? createQrColor(config.color) : undefined,
   );
+}
+
+/** --------------------------------------------------------------------------
+ * QR Color configuration.
+ */
+
+export type QrColorConfig =
+  | { type: "Solid"; value: string }
+  | {
+      type: "LinearGradient";
+      colors: Array<[number, string]>;
+      orientation: LinearGradientOrientationConfig;
+    }
+  | { type: "RadialGradient"; colors: Array<[number, string]>; radius?: number }
+  | { type: "SweepGradient"; colors: Array<[number, string]> };
+
+function createQrColor(config: QrColorConfig): IQrColor {
+  switch (config.type) {
+    case "LinearGradient":
+      return new QrColor.LinearGradient(
+        config.colors,
+        LinearGradientOrientation.fromString(config.orientation),
+      );
+    case "RadialGradient":
+      return new QrColor.RadialGradient(config.colors, config.radius);
+    case "SweepGradient":
+      return new QrColor.SweepGradient(config.colors);
+    case "Solid":
+    default:
+      return new QrColor.Solid(config.value);
+  }
 }

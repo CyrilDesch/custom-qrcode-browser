@@ -82,7 +82,14 @@ yarn add custom-qrcode-browser
 Create a new Angular component to render the QR code:
 
 ```typescript
-...
+import {
+  Component,
+  OnChanges,
+  Input,
+  ViewChild,
+  ElementRef,
+  SimpleChanges,
+} from "@angular/core";
 import { QrCodeGenerator, IQrData, QrOptions } from "custom-qrcode-browser";
 
 @Component({
@@ -91,14 +98,13 @@ import { QrCodeGenerator, IQrData, QrOptions } from "custom-qrcode-browser";
   template: `<svg #svgElement></svg>`,
 })
 export class CustomQrCodeComponent implements OnChanges {
-  @Input() data!: IQrData;
-  @Input() options: QrOptions = {};
+  @Input() config!: QrCodeConfig;
 
   @ViewChild("svgElement", { static: true })
   svgElement!: ElementRef<SVGSVGElement>;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.data || changes.options) {
+    if (changes.config) {
       this.generateQrCode();
     }
   }
@@ -107,8 +113,7 @@ export class CustomQrCodeComponent implements OnChanges {
     if (this.svgElement?.nativeElement) {
       const qrCodeCore = QrCodeGenerator(
         this.svgElement.nativeElement,
-        this.data,
-        this.options,
+        this.config,
       );
       qrCodeCore.generateSvg();
     }
@@ -118,21 +123,24 @@ export class CustomQrCodeComponent implements OnChanges {
 
 #### 2. Use the Component
 
-Create variables for data and options in ts file, it's just for the example.
+Object declaration in html is just for the example. See more on [example](#-examples).
 
 ```html
 <app-custom-qr-code
-  [data]="{
-    type: 'Url',
-    data: { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
-  }"
-  [options]="{
-    sizeRatio: 1,
-    errorCorrectionLevel: 'HIGH',
-    shapes: { qrCode: { type: 'Circle' } }
-  }"
+  [config]="{
+    data: {
+      type: 'Url',
+      data: { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+    },
+    options: {
+      sizeRatio: 1,
+      errorCorrectionLevel: 'HIGH',
+      shapes: { qrCode: { type: 'Circle' } }
+    }"
 ></app-custom-qr-code>
 ```
+
+---
 
 ### React
 
@@ -140,30 +148,27 @@ Create variables for data and options in ts file, it's just for the example.
 
 ```tsx
 import React, { useRef, useEffect } from "react";
-import { QrCodeGenerator, IQrData, QrOptions } from "custom-qrcode-browser";
+import { QrCodeGenerator, QrCodeConfig } from "custom-qrcode-browser";
 
-interface QrCodeProps {
-  data: IQrData;
-  options?: QrOptions;
-}
-
-const QrCode: React.FC<QrCodeProps> = ({ data, options = {} }) => {
+const QrCode: React.FC<QrCodeConfig> = (qrCodeConfig) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
     if (svgRef.current) {
-      const qrCodeCore = QrCodeGenerator(svgRef.current, data, options);
+      const qrCodeCore = QrCodeGenerator(svgRef.current, qrCodeConfig);
       qrCodeCore.generateSvg();
     }
-  }, [data, options]);
+  }, [qrCodeConfig]);
 
-  return <svg ref={svgRef}></svg>;
+  return <svg ref={svgRef} />;
 };
 
 export default QrCode;
 ```
 
 #### 2. Use the Component
+
+See more on [example](#-examples).
 
 ```tsx
 const Example: React.FC = () => (
@@ -187,12 +192,15 @@ export default App;
 
 ## 📋 API Documentation
 
-- [QrData](#qrdata)
-- [QrOptions](#qroptions)
-- [QrColorConfig](#qrcolorconfig)
-- [QrPixelShapeConfig](#qrpixelshapeconfig)
+- [QrData](#-qrdata)
+- [QrOptions](#-qroptions)
+- [QrShapesConfig](#-qrshapesconfig)
+- [QrColorConfig](#-qrcolorconfig)
+- [QrPixelShapeConfig](#-qrpixelshapeconfig)
 
-### QrData
+---
+
+### ► QrData
 
 Describes the different kinds of information that can be scanned and interpreted by QR code readers.
 
@@ -357,7 +365,9 @@ const data: IQrData = {
   }
   ```
 
-### QrOptions
+---
+
+### ► QrOptions
 
 Describes the different options available to customize QR codes.
 
@@ -383,120 +393,127 @@ const options: QrOptions = {
 
   Error correction level; higher levels can restore more data if the code is damaged.
 
-- **shapes**: `QrShapesConfig`
+- **shapes**: [`QrShapesConfig`](#-qrshapesconfig)
 
-  Customize the shapes of various QR code elements.
+  Customize the shapes of various QR code elements. See below for more details.
 
-#### shapes.qrCode
+---
 
-Shape of the overall QR code.
+### ► QrShapesConfig
 
-```typescript
-shapes: {
-  qrCode: {
-    type: "Square" | "Circle";
+- **shapes.qrCode**
+
+  Shape of the overall QR code.
+
+  ```typescript
+  shapes: {
+    qrCode: {
+      type: "Square" | "Circle";
+      seed?: number; // Optional: used to vary randomness added pixel in Circle type
+    }
   }
-}
-```
+  ```
 
-#### shapes.matrixPixel
+- **shapes.matrixPixel**
 
-Shape of the individual pixels in the QR code matrix. See [`QrPixelShapeConfig`](#qrpixelshapeconfig) and [`QrColorConfig`](#qrcolorconfig) for details.
+  Shape of the individual pixels in the QR code matrix. See [`QrPixelShapeConfig`](#-qrpixelshapeconfig) and [`QrColorConfig`](#-qrcolorconfig) for details.
 
-```typescript
-shapes: {
-  matrixPixel: {
-    pixelShape: QrPixelShapeConfig;
-    color: QrColorConfig;
+  ```typescript
+  shapes: {
+    matrixPixel: {
+      pixelShape: QrPixelShapeConfig;
+      color?: QrColorConfig;
+    }
   }
-}
-```
+  ```
 
-#### shapes.eye
+- **shapes.eye**
 
-Shape of the eyes (the three corner elements). See [`QrColorConfig`](#qrcolorconfig) for details.
+  Shape of the eyes (the three corner elements). See [`QrColorConfig`](#-qrcolorconfig) for details.
 
-```typescript
-shapes: {
-  eye: {
-    type: 'Square' | 'Circle' | 'Rhombus';
-    cornerRadius?: number; // Between 0 and 1, only for 'Square' type
-    color: QrColorConfig;
-  };
-}
-```
-
-#### shapes.eyeFrame
-
-Shape of the eye frames. See [`QrPixelShapeConfig`](#qrpixelshapeconfig) and [`QrColorConfig`](#qrcolorconfig) for details.
-
-```typescript
-shapes: {
-  eyeFrame: {
-    type: "Square" | "Circle";
-    pixelShape: QrPixelShapeConfig;
-    color: QrColorConfig;
+  ```typescript
+  shapes: {
+    eye: {
+      type: 'Square' | 'Circle' | 'Rhombus';
+      cornerRadius?: number; // Between 0 and 1, only for 'Square' type
+      color?: QrColorConfig;
+    };
   }
-}
-```
+  ```
 
-#### shapes.logo
+- **shapes.eyeFrame**
 
-Embed a logo in the QR code. See [`QrColorConfig`](#qrcolorconfig) for details.
+  Shape of the eye frames. See [`QrPixelShapeConfig`](#-qrpixelshapeconfig) and [`QrColorConfig`](#-qrcolorconfig) for details.
 
-```typescript
-shapes: {
-  logo: {
-    type: 'RoundCorners' | 'SquareCorners';
-    image: string;       // SVG or image URL
-    sizeRatio: number;   // Between 0 and 1
-    padding: number;     // In pixels
-    color?: QrColorConfig;
-  };
-}
-```
-
-#### shapes.timingLine
-
-Customize the timing lines. See [`QrPixelShapeConfig`](#qrpixelshapeconfig) and [`QrColorConfig`](#qrcolorconfig) for details.
-
-```typescript
-shapes: {
-  timingLine: {
-    pixelShape: QrPixelShapeConfig;
-    color: QrColorConfig;
+  ```typescript
+  shapes: {
+    eyeFrame: {
+      type: "Square" | "Circle";
+      pixelShape: QrPixelShapeConfig;
+      color?: QrColorConfig;
+    }
   }
-}
-```
+  ```
 
-#### shapes.background
+- **shapes.logo**
 
-Background options for the QR code. See [`QrColorConfig`](#qrcolorconfig) for details.
+  Embed a logo in the QR code. See [`QrColorConfig`](#-qrcolorconfig) for details.
 
-```typescript
-shapes: {
-  background: {
-    image?: string;      // Image URL
-    color?: QrColorConfig;
-  };
-}
-```
-
-#### shapes.alignmentPattern
-
-Shape of the alignment patterns for larger QR codes. See [`QrPixelShapeConfig`](#qrpixelshapeconfig) and [`QrColorConfig`](#qrcolorconfig) for details.
-
-```typescript
-shapes: {
-  alignmentPattern: {
-    type: "Square" | "Circle";
-    pixelShape: QrPixelShapeConfig;
-    color: QrColorConfig;
+  ```typescript
+  shapes: {
+    logo: {
+      type: 'Circle' | 'Square' | 'Rhombus';
+      image?: string | null;  // SVG or image URL
+      sizeRatio?: number;      // Between 0 and 1
+      padding?: number;        // In pixels
+      color?: QrColorConfig;
+    };
   }
-}
-```
+  ```
 
-### QrColorConfig
+- **shapes.timingLine**
+
+  Customize the timing lines. See [`QrPixelShapeConfig`](#-qrpixelshapeconfig) and [`QrColorConfig`](#-qrcolorconfig) for details.
+
+  ```typescript
+  shapes: {
+    timingLine: {
+      pixelShape: QrPixelShapeConfig;
+      color?: QrColorConfig;
+    }
+  }
+  ```
+
+- **shapes.background**
+
+  Background options for the QR code. See [`QrColorConfig`](#-qrcolorconfig) for details.
+
+  ```typescript
+  shapes: {
+    background: {
+      image?: string;      // Image URL
+      color?: QrColorConfig; // Background color
+    };
+  }
+  ```
+
+- **shapes.alignmentPattern**
+
+  Shape of the alignment patterns for larger QR codes. See [`QrPixelShapeConfig`](#-qrpixelshapeconfig) and [`QrColorConfig`](#-qrcolorconfig) for details.
+
+  ```typescript
+  shapes: {
+    alignmentPattern: {
+      type: "Square" | "Circle";
+      pixelShape: QrPixelShapeConfig;
+      color?: QrColorConfig;
+    }
+  }
+  ```
+
+---
+
+### ► QrColorConfig
 
 Describes the different color options available for QR code elements.
 
@@ -541,7 +558,9 @@ const color: QrColorConfig = {
   colors: Array<[number, string]>;
   ```
 
-### QrPixelShapeConfig
+---
+
+### ► QrPixelShapeConfig
 
 Describes the different shape options available for individual pixels.
 
@@ -581,7 +600,7 @@ const pixelShape: QrPixelShapeConfig = {
 - **cornerRadius**
 
   ```typescript
-  cornerRadius: number; // Between 0 and 1, only for round corner shapes
+  cornerRadius: number; // Between 0 and 1, only for "corner" shapes
   ```
 
 ## 📚 Examples
@@ -589,12 +608,12 @@ const pixelShape: QrPixelShapeConfig = {
 ### Example 1: Basic QR Code
 
 ```typescript
-const data: IQrData = {
+const data: QrDataConfig = {
   type: "Url",
   data: { url: "https://example.com" },
 };
 
-const options: QrOptions = {
+const options: QrOptionsConfig = {
   sizeRatio: 1,
   errorCorrectionLevel: "MEDIUM",
 };
@@ -603,18 +622,20 @@ const options: QrOptions = {
 ### Example 2: QR Code with Custom Shapes and Colors
 
 ```typescript
-const data: IQrData = {
+const data: QrDataConfig = {
   type: "Text",
   data: { value: "Custom QR Code" },
 };
 
-const options: QrOptions = {
+const options: QrOptionsConfig = {
   sizeRatio: 0.9,
   errorCorrectionLevel: "HIGH",
   shapes: {
-    qrCode: { type: "Square" },
+    qrCode: {
+      type: "Square",
+    },
     matrixPixel: {
-      pixelShape: { type: "Hexagon", sizeRatio: 1 },
+      pixelShape: { type: "Hexagon", sizeRatio: 0.9 },
       color: {
         type: "LinearGradient",
         colors: [
@@ -626,11 +647,18 @@ const options: QrOptions = {
     },
     eye: {
       type: "Circle",
-      color: { type: "Solid", value: "#00ff00" },
+      color: {
+        type: "LinearGradient",
+        colors: [
+          [0, "#ff0000"],
+          [1, "#0000ff"],
+        ],
+        orientation: "Vertical",
+      },
     },
     eyeFrame: {
       type: "Square",
-      pixelShape: { type: "RoundCorners", cornerRadius: 0.2 },
+      pixelShape: { type: "StickyCorners", cornerRadius: 0.2 },
       color: { type: "Solid", value: "#000000" },
     },
     background: {
@@ -643,20 +671,31 @@ const options: QrOptions = {
 ### Example 3: QR Code with Embedded Logo
 
 ```typescript
-const data: IQrData = {
+const data: QrDataConfig = {
   type: "Url",
   data: { url: "https://github.com" },
 };
 
-const options: QrOptions = {
-  sizeRatio: 0.8,
+const options: QrOptionsConfig = {
+  sizeRatio: 1,
+  errorCorrectionLevel: "LOW",
   shapes: {
+    qrCode: {
+      type: "Circle",
+    },
+    matrixPixel: {
+      pixelShape: {
+        type: "StickyCorners",
+        cornerRadius: 0.5,
+      },
+    },
     logo: {
-      type: "RoundCorners",
+      type: "Circle",
       image:
         "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-      sizeRatio: 0.2,
-      padding: 5,
+      sizeRatio: 0.4,
+      padding: 1,
+      color: { type: "Solid", value: "white" },
     },
   },
 };

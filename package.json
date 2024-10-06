@@ -51,5 +51,17 @@
     "ts-node": "^10.9.2",
     "typescript": "5.5.4",
     "vite": "^5.4.5"
-  }
+  },
+  "keywords": [
+    "qrcode",
+    "qr-code-generator",
+    "svg-generator",
+    "qr-encoder",
+    "qr-code-library",
+    "customizable",
+    "lightweight",
+    "no-dependencies",
+    "stylish qr",
+    "open-source"
+  ]
 }

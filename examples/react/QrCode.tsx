@@ -1,21 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import { QrCodeGenerator, type QrOptionsConfig } from "../../src";
-import type { QrDataConfig } from "../../src/encode/QrDataMapper";
+import { QrCodeGenerator } from "../../src";
+import type { QrCodeConfig } from "../../src/core/QrCodeGenerator";
 
-type QrCodeProps = {
-  data: QrDataConfig;
-  options?: QrOptionsConfig;
-};
-
-const QrCode: React.FC<QrCodeProps> = ({ data, options }) => {
+const QrCode: React.FC<QrCodeConfig> = (qrCodeConfig) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
     if (svgRef.current) {
-      const qrCodeCore = QrCodeGenerator(svgRef.current, data, options);
+      const qrCodeCore = QrCodeGenerator(svgRef.current, qrCodeConfig);
       qrCodeCore.generateSvg();
     }
-  }, [data, options]);
+  }, [qrCodeConfig]);
 
   return <svg ref={svgRef} />;
 };

@@ -19,73 +19,30 @@ const App = () => {
 
   const [data, options] = useMemo(() => {
     const data: QrDataConfig = {
-      type: "Text",
-      data: {
-        value: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      },
+      type: "Url",
+      data: { url: "https://github.com" },
     };
+
     const options: QrOptionsConfig = {
       sizeRatio: 1,
-      errorCorrectionLevel: "HIGH",
+      errorCorrectionLevel: "LOW",
       shapes: {
         qrCode: {
-          type: "Square",
+          type: "Circle",
         },
         matrixPixel: {
           pixelShape: {
-            type: "Circle",
-            sizeRatio: 0.9,
-          },
-          color: {
-            type: "Solid",
-            value: "black",
-          },
-        },
-        eye: {
-          type: "Square",
-          cornerRadius: 0.2,
-          color: {
-            type: "Solid",
-            value: "#007048",
-          },
-        },
-        eyeFrame: {
-          type: "Square",
-          pixelShape: {
             type: "StickyCorners",
-            cornerRadius: 0.2,
-          },
-          color: {
-            type: "Solid",
-            value: "#007048",
+            cornerRadius: 0.5,
           },
         },
         logo: {
-          type: "RoundCorners",
-          image: svg,
+          type: "Circle",
+          image:
+            "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
           sizeRatio: 0.4,
           padding: 1,
-          color: {
-            type: "Solid",
-            value: "white",
-          },
-        },
-        background: {
-          color: {
-            type: "Solid",
-            value: "white",
-          },
-        },
-        alignmentPattern: {
-          type: "Square",
-          pixelShape: {
-            type: "StickyCorners",
-            cornerRadius: 0.2,
-          },
-          color: {
-            type: "Solid",
-            value: "#007048",
-          },
+          color: { type: "Solid", value: "white" },
         },
       },
     };
