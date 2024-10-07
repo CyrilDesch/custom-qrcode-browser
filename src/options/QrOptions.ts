@@ -6,7 +6,7 @@ import { QrShapes } from "./QrShapes";
 import {
   createQrShapesFromConfig,
   type QrShapesConfig,
-} from "./QrShapesMapper";
+} from "../mapper/QrShapesMapper";
 
 export interface QrOptionsConfig {
   sizeRatio?: number;
