@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { type QrOptionsConfig } from "../../src";
 import QrCode from "./QrCode";
-import type { QrDataConfig } from "../../src/encode/QrDataMapper";
+import type { QrDataConfig } from "../../src/mapper/QrDataMapper";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);

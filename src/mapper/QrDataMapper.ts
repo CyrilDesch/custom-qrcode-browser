@@ -16,7 +16,7 @@ import {
   Wifi,
   YouTube,
   type IQrData,
-} from "./QrData";
+} from "../encode/QrData";
 
 /** --------------------------------------------------------------------------
  * Factory data configuration.

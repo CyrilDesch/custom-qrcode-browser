@@ -19,7 +19,7 @@ import { QrMatrixPixelShape } from "../style/shapes/QrMatrixPixelShape";
 import { type IQrPixelShape, QrPixelShape } from "../style/shapes/QrPixelShape";
 import { QrShape, type IQrShape } from "../style/shapes/QrShape";
 import { QrTimingLineShape } from "../style/shapes/QrTimingLineShape";
-import { QrShapes } from "./QrShapes";
+import { QrShapes } from "../options/QrShapes";
 
 /** --------------------------------------------------------------------------
  * Factory shapes configuration.

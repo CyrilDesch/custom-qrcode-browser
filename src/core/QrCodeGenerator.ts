@@ -7,7 +7,7 @@ import { computeViewBoxIncrease } from "../utils/SvgUtils";
 import {
   createQrDataFromConfig,
   type QrDataConfig,
-} from "../encode/QrDataMapper";
+} from "../mapper/QrDataMapper";
 
 export interface QrCodeConfig {
   data: QrDataConfig;

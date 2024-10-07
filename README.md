@@ -90,7 +90,11 @@ import {
   ElementRef,
   SimpleChanges,
 } from "@angular/core";
-import { QrCodeGenerator, IQrData, QrOptions } from "custom-qrcode-browser";
+import {
+  QrCodeGenerator,
+  QrOptionsConfig,
+  QrDataConfig,
+} from "custom-qrcode-browser";
 
 @Component({
   selector: "app-custom-qr-code",
@@ -98,23 +102,24 @@ import { QrCodeGenerator, IQrData, QrOptions } from "custom-qrcode-browser";
   template: `<svg #svgElement></svg>`,
 })
 export class CustomQrCodeComponent implements OnChanges {
-  @Input() config!: QrCodeConfig;
+  @Input() data!: QrDataConfig;
+  @Input() options?: QrOptionsConfig;
 
   @ViewChild("svgElement", { static: true })
   svgElement!: ElementRef<SVGSVGElement>;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.config) {
+    if (changes["data"] || changes["options"]) {
       this.generateQrCode();
     }
   }
 
   private generateQrCode(): void {
-    if (this.svgElement?.nativeElement) {
-      const qrCodeCore = QrCodeGenerator(
-        this.svgElement.nativeElement,
-        this.config,
-      );
+    if (this.svgElement && this.svgElement.nativeElement) {
+      const qrCodeCore = QrCodeGenerator(this.svgElement.nativeElement, {
+        data: this.data,
+        options: this.options,
+      });
       qrCodeCore.generateSvg();
     }
   }
@@ -123,21 +128,10 @@ export class CustomQrCodeComponent implements OnChanges {
 
 #### 2. Use the Component
 
-Object declaration in html is just for the example. See more on [example](#-examples).
+See more on [example](#-examples).
 
 ```html
-<app-custom-qr-code
-  [config]="{
-    data: {
-      type: 'Url',
-      data: { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
-    },
-    options: {
-      sizeRatio: 1,
-      errorCorrectionLevel: 'HIGH',
-      shapes: { qrCode: { type: 'Circle' } }
-    }"
-></app-custom-qr-code>
+<app-custom-qr-code [data]="data" [options]="options" />
 ```
 
 ---
@@ -173,17 +167,7 @@ See more on [example](#-examples).
 ```tsx
 const Example: React.FC = () => (
   <div style={{ width: 300 }}>
-    <QrCode
-      data={{
-        type: "Url",
-        data: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-      }}
-      options={{
-        sizeRatio: 1,
-        errorCorrectionLevel: "HIGH",
-        shapes: { qrCode: { type: "Circle" } },
-      }}
-    />
+    <QrCode data={data} options={options} />
   </div>
 );
 
